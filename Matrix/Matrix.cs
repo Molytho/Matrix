@@ -26,5 +26,11 @@ namespace Molytho.Matrix
 
         public ref T this[int row, int column]
             => ref _data[row,column];
+
+        public static Matrix<T> operator +(Matrix<T> a, Matrix<T> b) => CalculationProvider<T>.Provider.Add(a, b);
+        public static Matrix<T> operator -(Matrix<T> a, Matrix<T> b) => CalculationProvider<T>.Provider.Substract(a, b);
+        public static Matrix<T> operator *(Matrix<T> a, Matrix<T> b) => CalculationProvider<T>.Provider.Multipy(a, b);
+        public static Matrix<T> operator *(Matrix<T> a, T b) => CalculationProvider<T>.Provider.Multipy(a, b);
+        public static Matrix<T> operator *(T a, Matrix<T> b) => CalculationProvider<T>.Provider.Multipy(b, a);
     }
 }

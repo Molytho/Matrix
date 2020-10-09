@@ -13,11 +13,11 @@ namespace Molytho.Matrix
         public Matrix<T> Multipy(Matrix<T> a, Matrix<T> b);
         public Matrix<T> Multipy(Matrix<T> a, T b);
 
-        public void InverseThis(ref Matrix<T> ret, Matrix<T> a);
-        public void AddThis(ref Matrix<T> ret, Matrix<T> a, Matrix<T> b);
-        public void SubstractThis(ref Matrix<T> ret, Matrix<T> a, Matrix<T> b);
-        public void MultipyThis(ref Matrix<T> ret, Matrix<T> a, Matrix<T> b);
-        public void MultipyThis(ref Matrix<T> ret, Matrix<T> a, T b);
+        public void InverseThis(Matrix<T> ret, Matrix<T> a);
+        public void AddThis(Matrix<T> ret, Matrix<T> a, Matrix<T> b);
+        public void SubstractThis(Matrix<T> ret, Matrix<T> a, Matrix<T> b);
+        public void MultipyThis(Matrix<T> ret, Matrix<T> a, Matrix<T> b);
+        public void MultipyThis(Matrix<T> ret, Matrix<T> a, T b);
     }
     public static class CalculationProvider<T>
     {
@@ -62,7 +62,7 @@ namespace Molytho.Matrix
 
                 Matrix<int> ret = new Matrix<int>(a.Dimension);
 
-                AddThis(ref ret, a, b);
+                AddThis(ret, a, b);
 
                 return ret;
             }
@@ -71,7 +71,7 @@ namespace Molytho.Matrix
             {
                 Matrix<int> ret = new Matrix<int>(a.Dimension);
 
-                InverseThis(ref ret, a);
+                InverseThis(ret, a);
 
                 return ret;
             }
@@ -82,7 +82,7 @@ namespace Molytho.Matrix
 
                 Matrix<int> ret = new Matrix<int>(a.Height, b.Width);
 
-                MultipyThis(ref ret, a, b);
+                MultipyThis(ret, a, b);
 
                 return ret;
             }
@@ -90,7 +90,7 @@ namespace Molytho.Matrix
             {
                 Matrix<int> ret = new Matrix<int>(a.Dimension);
 
-                MultipyThis(ref ret, a, b);
+                MultipyThis(ret, a, b);
 
                 return ret;
             }
@@ -101,16 +101,16 @@ namespace Molytho.Matrix
 
                 Matrix<int> ret = new Matrix<int>(a.Dimension);
 
-                SubstractThis(ref ret, a, b);
+                SubstractThis(ret, a, b);
 
                 return ret;
             }
 
-            public void InverseThis(ref Matrix<int> ret, Matrix<int> a)
+            public void InverseThis(Matrix<int> ret, Matrix<int> a)
             {
                 throw new NotImplementedException();
             }
-            public void MultipyThis(ref Matrix<int> ret, Matrix<int> a, Matrix<int> b)
+            public void MultipyThis(Matrix<int> ret, Matrix<int> a, Matrix<int> b)
             {
                 if (a.Width != b.Height || !(ret.Height == a.Height && ret.Width == b.Width))
                     throw new DimensionMismatchException();
@@ -126,7 +126,7 @@ namespace Molytho.Matrix
                         ret[x, y] = value;
                     }
             }
-            public void MultipyThis(ref Matrix<int> ret, Matrix<int> a, int b)
+            public void MultipyThis(Matrix<int> ret, Matrix<int> a, int b)
             {
                 for (int x = 0; x < a.Width; x++)
                     for (int y = 0; y < a.Height; y++)
@@ -134,7 +134,7 @@ namespace Molytho.Matrix
                         ret[x, y] = a[x, y] * b;
                     }
             }
-            public void AddThis(ref Matrix<int> ret, Matrix<int> a, Matrix<int> b)
+            public void AddThis(Matrix<int> ret, Matrix<int> a, Matrix<int> b)
             {
                 if (!a.Dimension.Equals(b.Dimension) || !a.Dimension.Equals(ret))
                     throw new DimensionMismatchException();
@@ -145,7 +145,7 @@ namespace Molytho.Matrix
                         ret[x, y] = a[x, y] + b[x, y];
                     }
             }
-            public void SubstractThis(ref Matrix<int> ret, Matrix<int> a, Matrix<int> b)
+            public void SubstractThis(Matrix<int> ret, Matrix<int> a, Matrix<int> b)
             {
                 if (!a.Dimension.Equals(b.Dimension) || !a.Dimension.Equals(ret))
                     throw new DimensionMismatchException();
