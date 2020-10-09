@@ -1,8 +1,10 @@
 ﻿using Molytho.Matrix.Calculation;
+using System.Diagnostics;
 using System.Text;
 
 namespace Molytho.Matrix
 {
+    [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
     public class Matrix<T>
     {
         private readonly Dimension _dimension;
@@ -57,6 +59,11 @@ namespace Molytho.Matrix
             }
             builder.Append('}');
             return builder.ToString();
+        }
+
+        private string GetDebuggerDisplay()
+        {
+            return ToString();
         }
     }
 }
