@@ -74,7 +74,11 @@ namespace Molytho.Matrix
             public void Multipy(int a, Matrix<int> b) => Multipy(b, a);
             public void Multipy(Matrix<int> a, int b)
             {
-                throw new NotImplementedException();
+                for (int x = 0; x < a.Width; x++)
+                    for (int y = 0; y < a.Height; y++)
+                    {
+                        a[x, y] *= b;
+                    }
             }
 
 
