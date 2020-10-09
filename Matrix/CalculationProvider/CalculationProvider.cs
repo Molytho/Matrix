@@ -16,7 +16,8 @@ namespace Molytho.Matrix.Calculation
             new Dictionary<Type, Type>()
             {
                 { typeof(int), typeof(IntCalculationProvider) },
-                { typeof(double), typeof(DoubleCalculationProvider) }
+                { typeof(double), typeof(DoubleCalculationProvider) },
+                { typeof(float), typeof(FloatCalculationProvider) }
             };
         internal static ICalculationProvider<T> TryGetCalculationProvider<T>()
         {
