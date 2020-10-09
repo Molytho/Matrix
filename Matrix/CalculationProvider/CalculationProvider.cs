@@ -32,7 +32,9 @@ namespace Molytho.Matrix.Calculation
                 throw new NotSupportedException("No calculation provider found for this type", e);
             }
 
-            return (ICalculationProvider<T>)providerType.GetConstructor(Type.EmptyTypes).Invoke(null);
+            return (ICalculationProvider<T>)
+                        (providerType.GetConstructor(Type.EmptyTypes)?.Invoke(null)
+                        ?? throw new NotSupportedException("Calculation provider has no default constructor"));
         }
     }
 }
