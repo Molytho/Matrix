@@ -71,7 +71,23 @@ namespace Molytho.Matrix
 
             public Matrix<int> Multipy(Matrix<int> a, Matrix<int> b)
             {
-                throw new NotImplementedException();
+                if (a.Width != b.Height)
+                    throw new DimensionMismatchException();
+
+                Matrix<int> ret = new Matrix<int>(a.Height, b.Width);
+
+                for(int x = 0; x < b.Width; x++)
+                    for(int y = 0; y < a.Height; y++)
+                    {
+                        int value = 0;
+                        for(int i = 0; i < a.Width; i++)
+                        {
+                            value += a[i, y] * b[x, i];
+                        }
+                        ret[x, y] = value;
+                    }
+
+                return ret;
             }
 
             public Matrix<int> Multipy(int a, Matrix<int> b) => Multipy(b, a);
