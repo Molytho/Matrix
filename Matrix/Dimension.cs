@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Molytho.Matrix
+﻿namespace Molytho.Matrix
 {
     public readonly struct Dimension
     {

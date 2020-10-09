@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using Molytho.Matrix.Calculation.Providers;
 
-namespace Molytho.Matrix
+namespace Molytho.Matrix.Calculation
 {
     public static class CalculationProvider<T>
     {
@@ -9,7 +10,7 @@ namespace Molytho.Matrix
         internal static ICalculationProvider<T> Provider => _provider ??= CalculationProvider.TryGetCalculationProvider<T>();
     }
 
-    public static partial class CalculationProvider
+    public static class CalculationProvider
     {
         private static readonly Dictionary<Type, Type> _providers =
             new Dictionary<Type, Type>()

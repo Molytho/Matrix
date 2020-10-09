@@ -1,7 +1,4 @@
-﻿using System.Text;
-using System.Threading;
-
-namespace Molytho.Matrix
+﻿namespace Molytho.Matrix.Calculation
 {
     public interface ICalculationProvider<T>
     {
