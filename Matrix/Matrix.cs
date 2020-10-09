@@ -14,6 +14,11 @@ namespace Molytho.Matrix
             _dimension = new Dimension(height, width);
             _data = new T[height, width];
         }
+        public Matrix(Dimension dimension)
+        {
+            _dimension = dimension;
+            _data = new T[dimension.Height, dimension.Width];
+        }
 
         public Dimension Dimension => _dimension;
         public int Height => _dimension.Height;
