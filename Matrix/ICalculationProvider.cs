@@ -84,7 +84,14 @@ namespace Molytho.Matrix
 
             public void Substract(Matrix<int> a, Matrix<int> b)
             {
-                throw new NotImplementedException();
+                if (!a.Dimension.Equals(b.Dimension))
+                    throw new DimensionMismatchException();
+
+                for (int x = 0; x < a.Width; x++)
+                    for (int y = 0; y < a.Height; y++)
+                    {
+                        a[x, y] -= b[x, y];
+                    }
             }
         }
     }
