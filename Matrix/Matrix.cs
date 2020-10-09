@@ -25,8 +25,8 @@ namespace Molytho.Matrix
         public int Height => _dimension.Height;
         public int Width => _dimension.Width;
 
-        public ref T this[int row, int column]
-            => ref _data[row, column];
+        public ref T this[int x, int y]
+            => ref _data[y, x];
 
         public static Matrix<T> operator +(Matrix<T> a, Matrix<T> b) => CalculationProvider<T>.Provider.Add(a, b);
         public static Matrix<T> operator -(Matrix<T> a, Matrix<T> b) => CalculationProvider<T>.Provider.Substract(a, b);
