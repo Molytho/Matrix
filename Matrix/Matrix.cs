@@ -32,5 +32,11 @@ namespace Molytho.Matrix
         public static Matrix<T> operator *(Matrix<T> a, Matrix<T> b) => CalculationProvider<T>.Provider.Multipy(a, b);
         public static Matrix<T> operator *(Matrix<T> a, T b) => CalculationProvider<T>.Provider.Multipy(a, b);
         public static Matrix<T> operator *(T a, Matrix<T> b) => CalculationProvider<T>.Provider.Multipy(b, a);
+
+        public void Inverse() => CalculationProvider<T>.Provider.InverseThis(this, this);
+        public void Add(Matrix<T> other) => CalculationProvider<T>.Provider.AddThis(this, this, other);
+        public void Substract(Matrix<T> other) => CalculationProvider<T>.Provider.SubstractThis(this, this, other);
+        public void Multipy(Matrix<T> other) => CalculationProvider<T>.Provider.MultipyThis(this, this, other);
+        public void Multipy(T scalar) => CalculationProvider<T>.Provider.MultipyThis(this, this, scalar);
     }
 }
