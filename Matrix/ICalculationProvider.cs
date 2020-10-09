@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 
 namespace Molytho.Matrix
 {
@@ -60,18 +61,19 @@ namespace Molytho.Matrix
                     throw new DimensionMismatchException();
 
                 Matrix<int> ret = new Matrix<int>(a.Dimension);
-                for(int x = 0; x < a.Width; x++)
-                    for(int y = 0; y < a.Height; y++)
-                    {
-                        ret[x,y] = a[x, y] + b[x, y];
-                    }
+
+                AddThis(ref ret, a, b);
 
                 return ret;
             }
 
             public Matrix<int> Inverse(Matrix<int> a)
             {
-                throw new NotImplementedException();
+                Matrix<int> ret = new Matrix<int>(a.Dimension);
+
+                InverseThis(ref ret, a);
+
+                return ret;
             }
             public Matrix<int> Multipy(Matrix<int> a, Matrix<int> b)
             {
@@ -80,27 +82,16 @@ namespace Molytho.Matrix
 
                 Matrix<int> ret = new Matrix<int>(a.Height, b.Width);
 
-                for(int x = 0; x < b.Width; x++)
-                    for(int y = 0; y < a.Height; y++)
-                    {
-                        int value = 0;
-                        for(int i = 0; i < a.Width; i++)
-                        {
-                            value += a[i, y] * b[x, i];
-                        }
-                        ret[x, y] = value;
-                    }
+                MultipyThis(ref ret, a, b);
 
                 return ret;
             }
             public Matrix<int> Multipy(Matrix<int> a, int b)
             {
                 Matrix<int> ret = new Matrix<int>(a.Dimension);
-                for (int x = 0; x < a.Width; x++)
-                    for (int y = 0; y < a.Height; y++)
-                    {
-                        ret[x, y] = a[x, y] * b;
-                    }
+
+                MultipyThis(ref ret, a, b);
+
                 return ret;
             }
             public Matrix<int> Substract(Matrix<int> a, Matrix<int> b)
@@ -109,11 +100,9 @@ namespace Molytho.Matrix
                     throw new DimensionMismatchException();
 
                 Matrix<int> ret = new Matrix<int>(a.Dimension);
-                for (int x = 0; x < a.Width; x++)
-                    for (int y = 0; y < a.Height; y++)
-                    {
-                        ret[x,y] = a[x, y] - b[x, y];
-                    }
+
+                SubstractThis(ref ret, a, b);
+
                 return ret;
             }
 
