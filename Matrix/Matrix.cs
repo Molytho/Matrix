@@ -1,4 +1,5 @@
 ﻿using Molytho.Matrix.Calculation;
+using System.Text;
 
 namespace Molytho.Matrix
 {
@@ -23,7 +24,7 @@ namespace Molytho.Matrix
         public int Width => _dimension.Width;
 
         public ref T this[int row, int column]
-            => ref _data[row,column];
+            => ref _data[row, column];
 
         public static Matrix<T> operator +(Matrix<T> a, Matrix<T> b) => CalculationProvider<T>.Provider.Add(a, b);
         public static Matrix<T> operator -(Matrix<T> a, Matrix<T> b) => CalculationProvider<T>.Provider.Substract(a, b);
@@ -36,5 +37,26 @@ namespace Molytho.Matrix
         public void Substract(Matrix<T> other) => CalculationProvider<T>.Provider.SubstractThis(this, this, other);
         public void Multipy(Matrix<T> other) => CalculationProvider<T>.Provider.MultipyThis(this, this, other);
         public void Multipy(T scalar) => CalculationProvider<T>.Provider.MultipyThis(this, this, scalar);
+
+        public override string ToString()
+        {
+            StringBuilder builder = new StringBuilder();
+            builder.Append('{');
+            for (int y = 0; y < Height; y++)
+            {
+                builder.Append('{');
+                for (int x = 0; x < Width; x++)
+                {
+                    builder.Append(this[x, y]);
+                    if(x < Width - 1)
+                        builder.Append(", ");
+                }
+                builder.Append('}');
+                if (y < Height - 1)
+                    builder.Append(", ");
+            }
+            builder.Append('}');
+            return builder.ToString();
+        }
     }
 }
