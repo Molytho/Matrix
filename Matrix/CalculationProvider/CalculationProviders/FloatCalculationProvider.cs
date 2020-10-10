@@ -120,13 +120,49 @@ namespace Molytho.Matrix.Calculation.Providers
                     ret[x, y] = a[x, y] * b[x, y];
                 }
         }
+        private unsafe void MultiplyThisAvx(MatrixBase<float> ret, MatrixBase<float> a, float b)
+        {
+            int calculated = 0;
+            fixed (float* base_a = &a[0, 0], base_ret = &ret[0, 0])
+            {
+                Vector256<float> scalar = Avx.BroadcastScalarToVector256(&b);
+                while (calculated + Vector256<float>.Count <= ret.Width * ret.Height)
+                {
+                    Vector256<float> solution =
+                        Avx.Multiply(
+                            Avx.LoadVector256(base_a + calculated),
+                            scalar
+                            );
+                    Avx.Store(base_ret + calculated, solution);
+                    calculated += Vector256<float>.Count;
+                }
+                if(calculated + Vector128<float>.Count < ret.Height * ret.Width)
+                {
+                    Vector128<float> scalar128 = Avx.ExtractVector128(scalar, 0);
+                    Vector128<float> solution =
+                        Avx.Multiply(
+                            Avx.LoadVector128(base_a + calculated),
+                            scalar128
+                            );
+                    Avx.Store(base_ret + calculated, solution);
+                    calculated += Vector128<float>.Count;
+                }
+                for (; calculated < ret.Width * ret.Height; calculated++)
+                {
+                    *(base_ret + calculated) = *(base_a + calculated) * b;
+                }
+            }
+        }
         public void MultiplyThis(MatrixBase<float> ret, MatrixBase<float> a, float b)
         {
-            for (int x = 0; x < a.Width; x++)
-                for (int y = 0; y < a.Height; y++)
-                {
-                    ret[x, y] = a[x, y] * b;
-                }
+            if (Avx.IsSupported)
+                MultiplyThisAvx(ret, a, b);
+            else
+                for (int x = 0; x < a.Width; x++)
+                    for (int y = 0; y < a.Height; y++)
+                    {
+                        ret[x, y] = a[x, y] * b;
+                    }
         }
 
         private unsafe void AddThisAvx2(MatrixBase<float> ret, MatrixBase<float> a, MatrixBase<float> b)
@@ -237,7 +273,7 @@ namespace Molytho.Matrix.Calculation.Providers
             int calculated = 0;
             fixed (float* base_a = &a[0, 0], base_b = &b[0, 0], base_ret = &ret[0, 0])
             {
-                while (calculated + Vector128<int>.Count <= ret.Width * ret.Height)
+                while (calculated + Vector128<float>.Count <= ret.Width * ret.Height)
                 {
                     Vector128<float> solution =
                         Sse.Subtract(
