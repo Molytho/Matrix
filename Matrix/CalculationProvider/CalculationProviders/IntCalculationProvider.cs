@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Runtime.Intrinsics;
+using System.Runtime.Intrinsics.X86;
 
 namespace Molytho.Matrix.Calculation.Providers
 {
@@ -129,11 +131,37 @@ namespace Molytho.Matrix.Calculation.Providers
                     ret[x, y] = a[x, y] * b;
                 }
         }
+        private unsafe void AddThisSse2(MatrixBase<int> ret, MatrixBase<int> a, MatrixBase<int> b)
+        {
+            int calculated = 0;
+            fixed (int* base_a = &a[0, 0], base_b = &b[0, 0], base_ret = &ret[0, 0])
+            {
+                while (calculated + Vector128<int>.Count <= ret.Width * ret.Height)
+                {
+                    Vector128<int> solution =
+                        Sse2.Add(
+                            Sse2.LoadVector128(base_a + calculated),
+                            Sse2.LoadVector128(base_b + calculated)
+                            );
+                    Sse2.Store(base_ret + calculated, solution);
+                    calculated += Vector128<int>.Count;
+                }
+                for(; calculated < ret.Width * ret.Height; calculated++)
+                {
+                    *(base_ret + calculated) = *(base_a + calculated) + *(base_b + calculated);
+                }
+            }
+        }
         public void AddThis(MatrixBase<int> ret, MatrixBase<int> a, MatrixBase<int> b)
         {
             if (!a.Dimension.Equals(b.Dimension) || !a.Dimension.Equals(ret.Dimension))
                 ThrowHelper.ThrowDimensionMismatch();
 
+            if (Sse2.IsSupported)
+            {
+                AddThisSse2(ret, a, b);
+            }
+            else
             for (int x = 0; x < a.Width; x++)
                 for (int y = 0; y < a.Height; y++)
                 {
