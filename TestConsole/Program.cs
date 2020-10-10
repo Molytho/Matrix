@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using Molytho.Matrix;
 
 namespace TestConsole
@@ -72,6 +73,57 @@ namespace TestConsole
             Console.WriteLine(g);
             Console.WriteLine(h);
             Console.WriteLine(i);
+
+            Console.WriteLine();
+
+            MatrixBase<float> huge3;
+            Matrix<float> huge1 = new Matrix<float>(1000, 1000), huge2 = new Matrix<float>(1000, 1000);
+            Random random = new Random();
+            Stopwatch stopwatch = new Stopwatch();
+            for(int x = 0; x < 1000; x++)
+                for(int y = 0; y < 1000; y++)
+                {
+                    huge1[x, y] = random.Next(int.MinValue, int.MaxValue);
+                    huge2[x, y] = random.Next(int.MinValue, int.MaxValue);
+                }
+
+            stopwatch.Start();
+            huge3 = huge1 + huge2;
+            stopwatch.Stop();
+            Console.WriteLine(stopwatch.ElapsedTicks);
+            Console.WriteLine();
+            //Console.WriteLine(huge1);
+            //Console.WriteLine(huge2);
+            //Console.WriteLine(huge3);
+
+            MatrixBase<float> fhuge2;
+            Matrix<float> fhuge1 = new Matrix<float>(1000, 1000);
+            for (int x = 0; x < 1000; x++)
+                for (int y = 0; y < 1000; y++)
+                {
+                    fhuge1[x, y] = (float)(1000 * random.NextDouble());
+                }
+
+            float scalar = (float)(random.NextDouble() * 1000);
+            stopwatch.Restart();
+            fhuge2 = fhuge1 * scalar;
+            stopwatch.Stop();
+            Console.WriteLine(stopwatch.ElapsedTicks);
+
+            huge1 = new Matrix<float>(1000, 1000);
+            huge2 = new Matrix<float>(1000, 1000);
+            for(int x = 0; x < 1000; x++)
+                for(int y = 0; y < 1000; y++)
+                {
+                    huge1[x, y] = random.Next(int.MinValue, int.MaxValue);
+                    huge2[x, y] = random.Next(int.MinValue, int.MaxValue);
+                }
+
+            stopwatch.Restart();
+            huge3 = huge1 * huge2;
+            stopwatch.Stop();
+            Console.WriteLine(stopwatch.ElapsedTicks);
+            Console.WriteLine();
         }
     }
 }
