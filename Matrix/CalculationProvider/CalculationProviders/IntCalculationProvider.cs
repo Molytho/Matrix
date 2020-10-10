@@ -111,6 +111,38 @@ namespace Molytho.Matrix.Calculation.Providers
                     ret[x, y] = a[x, y] * b;
                 }
         }
+
+        private unsafe void AddThisAvx2(MatrixBase<int> ret, MatrixBase<int> a, MatrixBase<int> b)
+        {
+            int calculated = 0;
+            fixed (int* base_a = &a[0, 0], base_b = &b[0, 0], base_ret = &ret[0, 0])
+            {
+                while (calculated + Vector256<int>.Count <= ret.Width * ret.Height)
+                {
+                    Vector256<int> solution =
+                        Avx2.Add(
+                            Avx2.LoadVector256(base_a + calculated),
+                            Avx2.LoadVector256(base_b + calculated)
+                            );
+                    Avx2.Store(base_ret + calculated, solution);
+                    calculated += Vector256<int>.Count;
+                }
+                if (calculated + Vector128<int>.Count <= ret.Width * ret.Height)
+                {
+                    Vector128<int> solution =
+                        Sse2.Add(
+                            Sse2.LoadVector128(base_a + calculated),
+                            Sse2.LoadVector128(base_b + calculated)
+                            );
+                    Sse2.Store(base_ret + calculated, solution);
+                    calculated += Vector128<int>.Count;
+                }
+                for (; calculated < ret.Width * ret.Height; calculated++)
+                {
+                    *(base_ret + calculated) = *(base_a + calculated) + *(base_b + calculated);
+                }
+            }
+        }
         private unsafe void AddThisSse2(MatrixBase<int> ret, MatrixBase<int> a, MatrixBase<int> b)
         {
             int calculated = 0;
@@ -126,7 +158,7 @@ namespace Molytho.Matrix.Calculation.Providers
                     Sse2.Store(base_ret + calculated, solution);
                     calculated += Vector128<int>.Count;
                 }
-                for(; calculated < ret.Width * ret.Height; calculated++)
+                for (; calculated < ret.Width * ret.Height; calculated++)
                 {
                     *(base_ret + calculated) = *(base_a + calculated) + *(base_b + calculated);
                 }
@@ -137,16 +169,20 @@ namespace Molytho.Matrix.Calculation.Providers
             if (!a.Dimension.Equals(b.Dimension) || !a.Dimension.Equals(ret.Dimension))
                 throw new DimensionMismatchException();
 
-            if (Sse2.IsSupported)
+            if (Avx2.IsSupported)
+            {
+                AddThisAvx2(ret, a, b);
+            }
+            else if (Sse2.IsSupported)
             {
                 AddThisSse2(ret, a, b);
             }
             else
-            for (int x = 0; x < a.Width; x++)
-                for (int y = 0; y < a.Height; y++)
-                {
-                    ret[x, y] = a[x, y] + b[x, y];
-                }
+                for (int x = 0; x < a.Width; x++)
+                    for (int y = 0; y < a.Height; y++)
+                    {
+                        ret[x, y] = a[x, y] + b[x, y];
+                    }
         }
         public void SubstractThis(MatrixBase<int> ret, MatrixBase<int> a, MatrixBase<int> b)
         {
