@@ -85,7 +85,7 @@ namespace Molytho.Matrix.Calculation.Providers
         }
         public void AddThis(Matrix<float> ret, Matrix<float> a, Matrix<float> b)
         {
-            if (!a.Dimension.Equals(b.Dimension) || !a.Dimension.Equals(ret))
+            if (!a.Dimension.Equals(b.Dimension) || !a.Dimension.Equals(ret.Dimension))
                 throw new DimensionMismatchException();
 
             for (int x = 0; x < a.Width; x++)
@@ -96,7 +96,7 @@ namespace Molytho.Matrix.Calculation.Providers
         }
         public void SubstractThis(Matrix<float> ret, Matrix<float> a, Matrix<float> b)
         {
-            if (!a.Dimension.Equals(b.Dimension) || !a.Dimension.Equals(ret))
+            if (!a.Dimension.Equals(b.Dimension) || !a.Dimension.Equals(ret.Dimension))
                 throw new DimensionMismatchException();
 
             for (int x = 0; x < a.Width; x++)
