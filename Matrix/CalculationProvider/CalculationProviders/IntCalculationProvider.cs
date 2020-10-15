@@ -141,10 +141,10 @@ namespace Molytho.Matrix.Calculation.Providers
                 {
                     Vector256<int> solution =
                         Avx2.Add(
-                            Avx2.LoadVector256(base_a + calculated),
-                            Avx2.LoadVector256(base_b + calculated)
+                            Avx.LoadVector256(base_a + calculated),
+                            Avx.LoadVector256(base_b + calculated)
                             );
-                    Avx2.Store(base_ret + calculated, solution);
+                    Avx.Store(base_ret + calculated, solution);
                     calculated += Vector256<int>.Count;
                 }
                 if (calculated + Vector128<int>.Count <= ret.Width * ret.Height)
@@ -214,10 +214,10 @@ namespace Molytho.Matrix.Calculation.Providers
                 {
                     Vector256<int> solution =
                         Avx2.Subtract(
-                            Avx2.LoadVector256(base_a + calculated),
-                            Avx2.LoadVector256(base_b + calculated)
+                            Avx.LoadVector256(base_a + calculated),
+                            Avx.LoadVector256(base_b + calculated)
                             );
-                    Avx2.Store(base_ret + calculated, solution);
+                    Avx.Store(base_ret + calculated, solution);
                     calculated += Vector256<int>.Count;
                 }
                 if (calculated + Vector128<int>.Count <= ret.Width * ret.Height)
