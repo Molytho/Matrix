@@ -93,21 +93,165 @@ namespace Molytho.Matrix.Calculation.Providers
         {
             throw new NotImplementedException();
         }
+
+        private unsafe void MultiplyThisAvx2(MatrixBase<float> ret, MatrixBase<float> a, MatrixBase<float> b)
+        {
+            fixed (float* base_a = &a[0, 0], base_b = &b[0, 0], base_ret = &ret[0, 0])
+            {
+                float* temp_storage;
+                Int32* indices = stackalloc Int32[]
+                {
+                    0,
+                    b.Width * 1 * sizeof(float),
+                    b.Width * 2 * sizeof(float),
+                    b.Width * 3 * sizeof(float),
+                    b.Width * 4 * sizeof(float),
+                    b.Width * 5 * sizeof(float),
+                    b.Width * 6 * sizeof(float),
+                    b.Width * 7 * sizeof(float)
+                };
+                Int32 indexScale = b.Width * 8 * sizeof(float);
+
+                int calculated;
+                Vector256<Int32> indexVec;
+                Vector256<Int32> indexVecInc = Avx2.BroadcastScalarToVector256(&indexScale);
+
+                if (a.Height <= b.Width)
+                {
+                    //FIXME: Optimize more
+                    for (int i = 0; i < ret.Width * ret.Height; i++)
+                        base_ret[i] = 0;
+
+                    temp_storage = base_ret;
+                    for (int y = 0; y < ret.Height; y++)
+                    {
+                        calculated = 0;
+                        indexVec = Avx2.LoadVector256(indices);
+                        while (calculated + Vector256<float>.Count <= a.Width)
+                        {
+                            if (calculated > 0)
+                                indexVec = Avx2.Add(indexVec, indexVecInc);
+
+                            Vector256<float> aVec = Avx.LoadVector256(base_a + calculated + y * a.Width);
+                            for (int x = 0; x < ret.Width; x++)
+                            {
+                                Vector256<float> bVec = Avx2.GatherVector256(base_b + x, indexVec, 1);
+                                Vector256<float> tempVec = Avx2.Multiply(aVec, bVec);
+                                tempVec = Avx2.HorizontalAdd(tempVec, tempVec);
+                                Vector128<float> tempVec128 = Avx2.Add(Avx2.ExtractVector128(tempVec, 1), Avx2.ExtractVector128(tempVec, 0));
+                                float solution = Avx2.HorizontalAdd(tempVec128, tempVec128).ToScalar();
+                                temp_storage[x] += solution;
+                            }
+                            calculated += Vector256<float>.Count;
+                        }
+
+                        if (calculated + Vector128<float>.Count <= a.Width)
+                        {
+                            if (calculated > 0)
+                                indexVec = Avx2.Add(indexVec, indexVecInc);
+
+                            Vector128<float> aVec = Avx.LoadVector128(base_a + calculated + y * a.Width);
+                            for (int x = 0; x < ret.Width; x++)
+                            {
+                                Vector128<float> bVec = Avx2.GatherVector128(base_b + x, Avx2.ExtractVector128(indexVec, 0), 1);
+                                Vector128<float> tempVec = Avx2.Multiply(aVec, bVec);
+                                tempVec = Avx2.HorizontalAdd(tempVec, tempVec);
+                                float solution = Avx2.HorizontalAdd(tempVec, tempVec).ToScalar();
+                                temp_storage[x] += solution;
+                            }
+                            calculated += Vector128<float>.Count;
+                        }
+
+                        for (; calculated < a.Width; calculated++)
+                        {
+                            for (int x = 0; x < ret.Width; x++)
+                            {
+                                temp_storage[x] += *(base_a + calculated + y * a.Width) * *(base_b + x + b.Width * calculated);
+                            }
+                        }
+
+                        temp_storage += ret.Width;
+                    }
+                }
+                else
+                {
+                    float* @stackalloc = stackalloc float[ret.Height];
+                    temp_storage = @stackalloc;
+                    for (int x = 0; x < ret.Width; x++)
+                    {
+                        calculated = 0;
+                        indexVec = Avx2.LoadVector256(indices);
+                        while (calculated + Vector256<float>.Count <= a.Width)
+                        {
+                            if (calculated > 0)
+                                indexVec = Avx2.Add(indexVec, indexVecInc);
+
+                            Vector256<float> bVec = Avx2.GatherVector256(base_b + x, indexVec, 1);
+                            for (int y = 0; y < ret.Height; y++)
+                            {
+                                Vector256<float> aVec = Avx.LoadVector256(base_a + calculated + y * a.Width);
+                                Vector256<float> tempVec = Avx2.Multiply(aVec, bVec);
+                                tempVec = Avx2.HorizontalAdd(tempVec, tempVec);
+                                Vector128<float> tempVec128 = Avx2.Add(Avx2.ExtractVector128(tempVec, 1), Avx2.ExtractVector128(tempVec, 0));
+                                float solution = Avx2.HorizontalAdd(tempVec128, tempVec128).ToScalar();
+                                temp_storage[y] += solution;
+                            }
+                            calculated += Vector256<float>.Count;
+                        }
+
+                        if (calculated + Vector128<float>.Count <= a.Width)
+                        {
+                            if (calculated > 0)
+                                indexVec = Avx2.Add(indexVec, Avx2.BroadcastScalarToVector256(&indexScale));
+
+                            Vector128<float> bVec = Avx2.GatherVector128(base_b + x, Avx2.ExtractVector128(indexVec, 0), 1);
+                            for (int y = 0; y < ret.Height; y++)
+                            {
+                                Vector128<float> aVec = Avx.LoadVector128(base_a + calculated + y * a.Width);
+                                Vector128<float> tempVec = Avx2.Multiply(aVec, bVec);
+                                tempVec = Avx2.HorizontalAdd(tempVec, tempVec);
+                                float solution = Avx2.HorizontalAdd(tempVec, tempVec).ToScalar();
+                                temp_storage[y] += solution;
+                            }
+                            calculated += Vector128<float>.Count;
+                        }
+
+                        for (; calculated < a.Width; calculated++)
+                        {
+                            for (int y = 0; y < ret.Height; y++)
+                            {
+                                temp_storage[y] += *(base_a + calculated + y * a.Width) * *(base_b + x + b.Width * calculated);
+                            }
+                        }
+
+                        //FIXME: There should be another solution for this
+                        for (int y = 0; y < ret.Height; y++)
+                        {
+                            ret[x, y] = temp_storage[y];
+                            temp_storage[y] = 0;
+                        }
+                    }
+                }
+            }
+        }
         public void MultiplyThis(MatrixBase<float> ret, MatrixBase<float> a, MatrixBase<float> b)
         {
             if (a.Width != b.Height || !(ret.Height == a.Height && ret.Width == b.Width))
                 ThrowHelper.ThrowDimensionMismatch();
 
-            for (int x = 0; x < b.Width; x++)
-                for (int y = 0; y < a.Height; y++)
-                {
-                    float value = 0;
-                    for (int i = 0; i < a.Width; i++)
+            if (Avx2.IsSupported)
+                MultiplyThisAvx2(ret, a, b);
+            else
+                for (int x = 0; x < b.Width; x++)
+                    for (int y = 0; y < a.Height; y++)
                     {
-                        value += a[i, y] * b[x, i];
+                        float value = 0;
+                        for (int i = 0; i < a.Width; i++)
+                        {
+                            value += a[i, y] * b[x, i];
+                        }
+                        ret[x, y] = value;
                     }
-                    ret[x, y] = value;
-                }
         }
         public void MultiplyThis(Vector<float> ret, Vector<float> a, Vector<float> b)
         {
@@ -136,7 +280,7 @@ namespace Molytho.Matrix.Calculation.Providers
                     Avx.Store(base_ret + calculated, solution);
                     calculated += Vector256<float>.Count;
                 }
-                if(calculated + Vector128<float>.Count < ret.Height * ret.Width)
+                if (calculated + Vector128<float>.Count < ret.Height * ret.Width)
                 {
                     Vector128<float> scalar128 = Avx.ExtractVector128(scalar, 0);
                     Vector128<float> solution =
