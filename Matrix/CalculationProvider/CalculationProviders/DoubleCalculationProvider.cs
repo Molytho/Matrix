@@ -54,6 +54,16 @@ namespace Molytho.Matrix.Calculation.Providers
 
             return ret;
         }
+        public Matrix<double> Transpose(Matrix<double> a)
+        {
+            Matrix<double> ret = new Matrix<double>(a.Width, a.Height);
+            for (int y = 0; y < a.Height; y++)
+                for (int x = 0; x < a.Width; x++)
+                {
+                    ret[y, x] = a[x, y];
+                }
+            return ret;
+        }
 
         public void InverseThis(Matrix<double> ret, Matrix<double> a)
         {

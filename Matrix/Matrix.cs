@@ -28,6 +28,8 @@ namespace Molytho.Matrix
         public ref T this[int x, int y]
             => ref _data[y, x];
 
+        public Matrix<T> Transpose => CalculationProvider<T>.Provider.Transpose(this);
+
         public static Matrix<T> operator +(Matrix<T> a, Matrix<T> b) => CalculationProvider<T>.Provider.Add(a, b);
         public static Matrix<T> operator -(Matrix<T> a, Matrix<T> b) => CalculationProvider<T>.Provider.Substract(a, b);
         public static Matrix<T> operator *(Matrix<T> a, Matrix<T> b) => CalculationProvider<T>.Provider.Multipy(a, b);
