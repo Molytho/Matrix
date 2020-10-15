@@ -111,7 +111,7 @@ namespace Molytho.Matrix.Calculation.Providers
                 }
         }
 
-        private unsafe void AddThisAvx2(MatrixBase<double> ret, MatrixBase<double> a, MatrixBase<double> b)
+        private unsafe void AddThisAvx(MatrixBase<double> ret, MatrixBase<double> a, MatrixBase<double> b)
         {
             int calculated = 0;
             fixed (double* base_a = &a[0, 0], base_b = &b[0, 0], base_ret = &ret[0, 0])
@@ -119,11 +119,11 @@ namespace Molytho.Matrix.Calculation.Providers
                 while (calculated + Vector256<double>.Count <= ret.Width * ret.Height)
                 {
                     Vector256<double> solution =
-                        Avx2.Add(
-                            Avx2.LoadVector256(base_a + calculated),
-                            Avx2.LoadVector256(base_b + calculated)
+                        Avx.Add(
+                            Avx.LoadVector256(base_a + calculated),
+                            Avx.LoadVector256(base_b + calculated)
                             );
-                    Avx2.Store(base_ret + calculated, solution);
+                    Avx.Store(base_ret + calculated, solution);
                     calculated += Vector256<double>.Count;
                 }
                 if (calculated + Vector128<double>.Count <= ret.Width * ret.Height)
@@ -168,9 +168,9 @@ namespace Molytho.Matrix.Calculation.Providers
             if (!a.Dimension.Equals(b.Dimension) || !a.Dimension.Equals(ret.Dimension))
                 throw new DimensionMismatchException();
 
-            if (Avx2.IsSupported)
+            if (Avx.IsSupported)
             {
-                AddThisAvx2(ret, a, b);
+                AddThisAvx(ret, a, b);
             }
             else if (Sse2.IsSupported)
             {
@@ -184,7 +184,7 @@ namespace Molytho.Matrix.Calculation.Providers
                     }
         }
 
-        private unsafe void SubstractThisAvx2(MatrixBase<double> ret, MatrixBase<double> a, MatrixBase<double> b)
+        private unsafe void SubstractThisAvx(MatrixBase<double> ret, MatrixBase<double> a, MatrixBase<double> b)
         {
             int calculated = 0;
             fixed (double* base_a = &a[0, 0], base_b = &b[0, 0], base_ret = &ret[0, 0])
@@ -192,11 +192,11 @@ namespace Molytho.Matrix.Calculation.Providers
                 while (calculated + Vector256<double>.Count <= ret.Width * ret.Height)
                 {
                     Vector256<double> solution =
-                        Avx2.Subtract(
-                            Avx2.LoadVector256(base_a + calculated),
-                            Avx2.LoadVector256(base_b + calculated)
+                        Avx.Subtract(
+                            Avx.LoadVector256(base_a + calculated),
+                            Avx.LoadVector256(base_b + calculated)
                             );
-                    Avx2.Store(base_ret + calculated, solution);
+                    Avx.Store(base_ret + calculated, solution);
                     calculated += Vector256<double>.Count;
                 }
                 if (calculated + Vector128<double>.Count <= ret.Width * ret.Height)
@@ -241,9 +241,9 @@ namespace Molytho.Matrix.Calculation.Providers
             if (!a.Dimension.Equals(b.Dimension) || !a.Dimension.Equals(ret.Dimension))
                 throw new DimensionMismatchException();
 
-            if (Avx2.IsSupported)
+            if (Avx.IsSupported)
             {
-                SubstractThisAvx2(ret, a, b);
+                SubstractThisAvx(ret, a, b);
             }
             else if (Sse2.IsSupported)
             {
