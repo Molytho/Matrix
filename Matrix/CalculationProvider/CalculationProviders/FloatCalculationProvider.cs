@@ -247,25 +247,34 @@ namespace Molytho.Matrix.Calculation.Providers
                     }
         }
 
-        private unsafe void MultiplyThisAvx(MatrixBase<float> ret, MatrixBase<float> a, float b)
+        private unsafe void MultiplyThisSse(MatrixBase<float> ret, MatrixBase<float> a, float b)
         {
             int calculated = 0;
             fixed (float* base_a = &a[0, 0], base_ret = &ret[0, 0])
             {
-                Vector256<float> scalar = Avx.BroadcastScalarToVector256(&b);
-                while (calculated + Vector256<float>.Count <= ret.Width * ret.Height)
+                Vector128<float> scalar128;
+                if (Avx.IsSupported)
                 {
-                    Vector256<float> solution =
-                        Avx.Multiply(
-                            Avx.LoadVector256(base_a + calculated),
-                            scalar
-                            );
-                    Avx.Store(base_ret + calculated, solution);
-                    calculated += Vector256<float>.Count;
+                    Vector256<float> scalar = Avx.BroadcastScalarToVector256(&b);
+                    while (calculated + Vector256<float>.Count <= ret.Width * ret.Height)
+                    {
+                        Vector256<float> solution =
+                            Avx.Multiply(
+                                Avx.LoadVector256(base_a + calculated),
+                                scalar
+                                );
+                        Avx.Store(base_ret + calculated, solution);
+                        calculated += Vector256<float>.Count;
+                    }
+                    scalar128 = Avx.ExtractVector128(scalar, 0);
                 }
-                if (calculated + Vector128<float>.Count < ret.Height * ret.Width)
+                else
                 {
-                    Vector128<float> scalar128 = Avx.ExtractVector128(scalar, 0);
+                    float* scalarMem = stackalloc float[] { b, b, b, b };
+                    scalar128 = Sse.LoadVector128(scalarMem);
+                }
+                while (calculated + Vector128<float>.Count < ret.Height * ret.Width)
+                {
                     Vector128<float> solution =
                         Sse.Multiply(
                             Sse.LoadVector128(base_a + calculated),
@@ -282,8 +291,8 @@ namespace Molytho.Matrix.Calculation.Providers
         }
         public void MultipyThis(MatrixBase<float> ret, MatrixBase<float> a, float b)
         {
-            if (Avx.IsSupported)
-                MultiplyThisAvx(ret, a, b);
+            if (Sse.IsSupported)
+                MultiplyThisSse(ret, a, b);
             else
                 for (int x = 0; x < a.Width; x++)
                     for (int y = 0; y < a.Height; y++)
