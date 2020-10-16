@@ -111,9 +111,7 @@ namespace Molytho.Matrix.Calculation.Providers
 
                 if (a.Height <= b.Width)
                 {
-                    //FIXME: Optimize more
-                    for (int i = 0; i < ret.Width * ret.Height; i++)
-                        base_ret[i] = 0;
+                    MemoryOperation.memset(base_ret, 0, ret.Width * ret.Height * sizeof(float));
 
                     temp_storage = base_ret;
                     for (int y = 0; y < ret.Height; y++)
