@@ -20,7 +20,6 @@ namespace Molytho.Matrix.Calculation.Providers
 
             return ret;
         }
-
         public MatrixBase<float> Inverse(MatrixBase<float> a)
         {
             throw new NotImplementedException();
@@ -309,42 +308,24 @@ namespace Molytho.Matrix.Calculation.Providers
                     }
         }
 
-        private unsafe void AddThisAvx(MatrixBase<float> ret, MatrixBase<float> a, MatrixBase<float> b)
-        {
-            int calculated = 0;
-            fixed (float* base_a = &a[0, 0], base_b = &b[0, 0], base_ret = &ret[0, 0])
-            {
-                while (calculated + Vector256<int>.Count <= ret.Width * ret.Height)
-                {
-                    Vector256<float> solution =
-                        Avx.Add(
-                            Avx.LoadVector256(base_a + calculated),
-                            Avx.LoadVector256(base_b + calculated)
-                            );
-                    Avx.Store(base_ret + calculated, solution);
-                    calculated += Vector256<float>.Count;
-                }
-                if (calculated + Vector128<float>.Count <= ret.Width * ret.Height)
-                {
-                    Vector128<float> solution =
-                        Sse.Add(
-                            Sse.LoadVector128(base_a + calculated),
-                            Sse.LoadVector128(base_b + calculated)
-                            );
-                    Sse.Store(base_ret + calculated, solution);
-                    calculated += Vector128<float>.Count;
-                }
-                for (; calculated < ret.Width * ret.Height; calculated++)
-                {
-                    *(base_ret + calculated) = *(base_a + calculated) + *(base_b + calculated);
-                }
-            }
-        }
         private unsafe void AddThisSse(MatrixBase<float> ret, MatrixBase<float> a, MatrixBase<float> b)
         {
             int calculated = 0;
             fixed (float* base_a = &a[0, 0], base_b = &b[0, 0], base_ret = &ret[0, 0])
             {
+                if (Avx.IsSupported)
+                {
+                    while (calculated + Vector256<float>.Count <= ret.Width * ret.Height)
+                    {
+                        Vector256<float> solution =
+                            Avx.Add(
+                                Avx.LoadVector256(base_a + calculated),
+                                Avx.LoadVector256(base_b + calculated)
+                                );
+                        Avx.Store(base_ret + calculated, solution);
+                        calculated += Vector256<float>.Count;
+                    }
+                }
                 while (calculated + Vector128<float>.Count <= ret.Width * ret.Height)
                 {
                     Vector128<float> solution =
@@ -366,11 +347,7 @@ namespace Molytho.Matrix.Calculation.Providers
             if (!a.Dimension.Equals(b.Dimension) || !a.Dimension.Equals(ret.Dimension))
                 ThrowHelper.ThrowDimensionMismatch();
 
-            if (Avx.IsSupported)
-            {
-                AddThisAvx(ret, a, b);
-            }
-            else if (Sse.IsSupported)
+            if (Sse.IsSupported)
             {
                 AddThisSse(ret, a, b);
             }
@@ -382,42 +359,24 @@ namespace Molytho.Matrix.Calculation.Providers
                     }
         }
 
-        private unsafe void SubstractThisAvx(MatrixBase<float> ret, MatrixBase<float> a, MatrixBase<float> b)
-        {
-            int calculated = 0;
-            fixed (float* base_a = &a[0, 0], base_b = &b[0, 0], base_ret = &ret[0, 0])
-            {
-                while (calculated + Vector256<float>.Count <= ret.Width * ret.Height)
-                {
-                    Vector256<float> solution =
-                        Avx.Subtract(
-                            Avx.LoadVector256(base_a + calculated),
-                            Avx.LoadVector256(base_b + calculated)
-                            );
-                    Avx.Store(base_ret + calculated, solution);
-                    calculated += Vector256<float>.Count;
-                }
-                if (calculated + Vector128<float>.Count <= ret.Width * ret.Height)
-                {
-                    Vector128<float> solution =
-                        Sse.Subtract(
-                            Sse.LoadVector128(base_a + calculated),
-                            Sse.LoadVector128(base_b + calculated)
-                            );
-                    Sse.Store(base_ret + calculated, solution);
-                    calculated += Vector128<float>.Count;
-                }
-                for (; calculated < ret.Width * ret.Height; calculated++)
-                {
-                    *(base_ret + calculated) = *(base_a + calculated) + *(base_b + calculated);
-                }
-            }
-        }
         private unsafe void SubstractThisSse(MatrixBase<float> ret, MatrixBase<float> a, MatrixBase<float> b)
         {
             int calculated = 0;
             fixed (float* base_a = &a[0, 0], base_b = &b[0, 0], base_ret = &ret[0, 0])
             {
+                if (Avx.IsSupported)
+                {
+                    while (calculated + Vector256<float>.Count <= ret.Width * ret.Height)
+                    {
+                        Vector256<float> solution =
+                            Avx.Subtract(
+                                Avx.LoadVector256(base_a + calculated),
+                                Avx.LoadVector256(base_b + calculated)
+                                );
+                        Avx.Store(base_ret + calculated, solution);
+                        calculated += Vector256<float>.Count;
+                    }
+                }
                 while (calculated + Vector128<float>.Count <= ret.Width * ret.Height)
                 {
                     Vector128<float> solution =
@@ -439,11 +398,7 @@ namespace Molytho.Matrix.Calculation.Providers
             if (!a.Dimension.Equals(b.Dimension) || !a.Dimension.Equals(ret.Dimension))
                 ThrowHelper.ThrowDimensionMismatch();
 
-            if (Avx.IsSupported)
-            {
-                SubstractThisAvx(ret, a, b);
-            }
-            else if (Sse.IsSupported)
+            if (Sse.IsSupported)
             {
                 SubstractThisSse(ret, a, b);
             }
