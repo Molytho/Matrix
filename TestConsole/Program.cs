@@ -9,6 +9,7 @@ namespace TestConsole
         static void Main(string[] args)
         {
             int e;
+            Random random = new Random();
             MatrixBase<int> c, f, i;
             Matrix<int> a = new Matrix<int>(3, 3), b = new Matrix<int>(3, 3), d = new Matrix<int>(3, 3), g = new Matrix<int>(2, 3), h = new Matrix<int>(3, 2);
 
@@ -76,9 +77,20 @@ namespace TestConsole
 
             Console.WriteLine();
 
+            MatrixBase<int> transposition;
+            Matrix<int> transpose = new Matrix<int>(14,13);
+            for(int x = 0; x < 13; x++)
+                for(int y = 0; y < 14; y++)
+                    transpose[x,y] = random.Next(-1000, 1001);
+            transposition = transpose.Transpose;
+
+            Console.WriteLine(transpose);
+            Console.WriteLine(transposition);
+
+            Console.WriteLine();
+
             MatrixBase<float> huge3;
             Matrix<float> huge1 = new Matrix<float>(1000, 1000), huge2 = new Matrix<float>(1000, 1000);
-            Random random = new Random();
             Stopwatch stopwatch = new Stopwatch();
             for(int x = 0; x < 1000; x++)
                 for(int y = 0; y < 1000; y++)
