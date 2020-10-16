@@ -67,17 +67,81 @@ namespace Molytho.Matrix.Calculation.Providers
 
             return ret;
         }
-        public MatrixBase<double> Transpose(MatrixBase<double> a)
+
+        private unsafe void TransposeAvx2(MatrixBase<double> ret, MatrixBase<double> a)
+        {
+            fixed (double* base_a = &a[0, 0], base_ret = &ret[0, 0])
+            {
+                int calculated = 0;
+                int* indices = stackalloc int[]
+                {
+                    0,
+                    a.Width * 1 * sizeof(double),
+                    a.Width * 2 * sizeof(double),
+                    a.Width * 3 * sizeof(double),
+                };
+                Vector128<int> indexVec = Avx.LoadVector128(indices);
+                if (a.Height >= Vector256<double>.Count)
+                {
+                    int indexScale = a.Width * 4 * sizeof(double);
+                    Vector128<int> indexVecInc = Avx2.BroadcastScalarToVector128(&indexScale);
+                    while (calculated + Vector256<double>.Count < a.Height)
+                    {
+                        if (calculated > 0)
+                            indexVec = Avx2.Add(indexVec, indexVecInc);
+
+                        for (int x = 0; x < a.Width; x++)
+                        {
+                            Vector256<double> storeVec = Avx2.GatherVector256(base_a + x, indexVec, 1);
+                            Avx.Store(base_ret + x * ret.Width + calculated, storeVec);
+                        }
+                        calculated += Vector256<double>.Count;
+                    }
+                    if (a.Height % Vector256<double>.Count > 1)
+                        indexVec = Avx2.Add(indexVec, indexVecInc);
+                }
+                if (a.Height % Vector256<double>.Count > 1)
+                {
+                    double* masks = stackalloc double[Vector256<double>.Count];
+                    for (int i = 0; i < Vector256<double>.Count; i++)
+                        //Most significant bit is used as mask
+                        masks[i] = a.Height - calculated - i > 0 ? (double)(0x80000000) : 0;
+
+                    Vector256<double> maskVec = Avx.LoadVector256(masks);
+                    for (int x = 0; x < a.Width; x++)
+                    {
+                        Vector256<double> storeVec = Avx2.GatherMaskVector256(Vector256<double>.Zero, base_a + x, indexVec, maskVec, 1);
+                        Avx2.MaskStore(base_ret + x * ret.Width + calculated, maskVec, storeVec);
+                    }
+                }
+                else if (a.Height % Vector256<double>.Count == 1)
+                {
+                    for (int x = 0; x < a.Width; x++)
+                    {
+                        *(base_ret + x * ret.Width + calculated) = *(base_a + x + calculated * a.Width);
+                    }
+                }
+            }
+        }
+        public unsafe MatrixBase<double> Transpose(MatrixBase<double> a)
         {
             MatrixBase<double> ret =
                 a.Height == 1
                 ? new Vector<double>(a.Width) as MatrixBase<double>
                 : new Matrix<double>(a.Width, a.Height) as MatrixBase<double>;
-            for (int y = 0; y < a.Height; y++)
-                for (int x = 0; x < a.Width; x++)
-                {
-                    ret[y, x] = a[x, y];
-                }
+            if (a.Height == 1 || a.Width == 1)
+            {
+                fixed (double* base_a = &a[0, 0], base_ret = &ret[0, 0])
+                    MemoryOperation.memcpy(base_ret, base_a, a.Height * a.Width * sizeof(double));
+            }
+            else if (Avx2.IsSupported)
+                TransposeAvx2(ret, a);
+            else
+                for (int y = 0; y < a.Height; y++)
+                    for (int x = 0; x < a.Width; x++)
+                    {
+                        ret[y, x] = a[x, y];
+                    }
             return ret;
         }
 
