@@ -4,59 +4,74 @@ namespace Molytho.Matrix.Calculation.Providers
 {
     internal class DoubleCalculationProvider : ICalculationProvider<double>
     {
-        public Matrix<double> Add(Matrix<double> a, Matrix<double> b)
+        public MatrixBase<double> Add(MatrixBase<double> a, MatrixBase<double> b)
         {
             if (!a.Dimension.Equals(b.Dimension))
                 throw new DimensionMismatchException();
 
-            Matrix<double> ret = new Matrix<double>(a.Dimension);
+            MatrixBase<double> ret =
+                a.Width == 1
+                ? new Matrix<double>(a.Dimension)/* FIXME Vector*/
+                : new Matrix<double>(a.Dimension);
 
             AddThis(ret, a, b);
 
             return ret;
         }
 
-        public Matrix<double> Inverse(Matrix<double> a)
+        public MatrixBase<double> Inverse(MatrixBase<double> a)
         {
-            Matrix<double> ret = new Matrix<double>(a.Dimension);
+            MatrixBase<double> ret = null;
 
             InverseThis(ret, a);
 
             return ret;
         }
-        public Matrix<double> Multipy(Matrix<double> a, Matrix<double> b)
+        public MatrixBase<double> Multipy(MatrixBase<double> a, MatrixBase<double> b)
         {
             if (a.Width != b.Height)
                 throw new DimensionMismatchException();
 
-            Matrix<double> ret = new Matrix<double>(a.Height, b.Width);
+            MatrixBase<double> ret =
+                b.Width == 1
+                ? new Matrix<double>(a.Height, b.Width)/* FIXME Vector*/
+                : new Matrix<double>(a.Height, b.Width);
 
             MultipyThis(ret, a, b);
 
             return ret;
         }
-        public Matrix<double> Multipy(Matrix<double> a, double b)
+        public MatrixBase<double> Multipy(MatrixBase<double> a, double b)
         {
-            Matrix<double> ret = new Matrix<double>(a.Dimension);
+            MatrixBase<double> ret =
+                a.Width == 1
+                ? new Matrix<double>(a.Dimension)/* FIXME Vector*/
+                : new Matrix<double>(a.Dimension);
 
             MultipyThis(ret, a, b);
 
             return ret;
         }
-        public Matrix<double> Substract(Matrix<double> a, Matrix<double> b)
+        public MatrixBase<double> Substract(MatrixBase<double> a, MatrixBase<double> b)
         {
             if (!a.Dimension.Equals(b.Dimension))
                 throw new DimensionMismatchException();
 
-            Matrix<double> ret = new Matrix<double>(a.Dimension);
+            MatrixBase<double> ret =
+                a.Width == 1
+                ? new Matrix<double>(a.Dimension)/* FIXME Vector*/
+                : new Matrix<double>(a.Dimension);
 
             SubstractThis(ret, a, b);
 
             return ret;
         }
-        public Matrix<double> Transpose(Matrix<double> a)
+        public MatrixBase<double> Transpose(MatrixBase<double> a)
         {
-            Matrix<double> ret = new Matrix<double>(a.Width, a.Height);
+            MatrixBase<double> ret =
+                a.Height == 1
+                ? new Matrix<double>(a.Width, a.Height)/* FIXME Vector*/
+                : new Matrix<double>(a.Width, a.Height);
             for (int y = 0; y < a.Height; y++)
                 for (int x = 0; x < a.Width; x++)
                 {
@@ -65,11 +80,11 @@ namespace Molytho.Matrix.Calculation.Providers
             return ret;
         }
 
-        public void InverseThis(Matrix<double> ret, Matrix<double> a)
+        public void InverseThis(MatrixBase<double> ret, MatrixBase<double> a)
         {
             throw new NotImplementedException();
         }
-        public void MultipyThis(Matrix<double> ret, Matrix<double> a, Matrix<double> b)
+        public void MultipyThis(MatrixBase<double> ret, MatrixBase<double> a, MatrixBase<double> b)
         {
             if (a.Width != b.Height || !(ret.Height == a.Height && ret.Width == b.Width))
                 throw new DimensionMismatchException();
@@ -85,7 +100,7 @@ namespace Molytho.Matrix.Calculation.Providers
                     ret[x, y] = value;
                 }
         }
-        public void MultipyThis(Matrix<double> ret, Matrix<double> a, double b)
+        public void MultipyThis(MatrixBase<double> ret, MatrixBase<double> a, double b)
         {
             for (int x = 0; x < a.Width; x++)
                 for (int y = 0; y < a.Height; y++)
@@ -93,7 +108,7 @@ namespace Molytho.Matrix.Calculation.Providers
                     ret[x, y] = a[x, y] * b;
                 }
         }
-        public void AddThis(Matrix<double> ret, Matrix<double> a, Matrix<double> b)
+        public void AddThis(MatrixBase<double> ret, MatrixBase<double> a, MatrixBase<double> b)
         {
             if (!a.Dimension.Equals(b.Dimension) || !a.Dimension.Equals(ret.Dimension))
                 throw new DimensionMismatchException();
@@ -104,7 +119,7 @@ namespace Molytho.Matrix.Calculation.Providers
                     ret[x, y] = a[x, y] + b[x, y];
                 }
         }
-        public void SubstractThis(Matrix<double> ret, Matrix<double> a, Matrix<double> b)
+        public void SubstractThis(MatrixBase<double> ret, MatrixBase<double> a, MatrixBase<double> b)
         {
             if (!a.Dimension.Equals(b.Dimension) || !a.Dimension.Equals(ret.Dimension))
                 throw new DimensionMismatchException();

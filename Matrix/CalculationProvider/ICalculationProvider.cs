@@ -2,17 +2,17 @@
 {
     public interface ICalculationProvider<T>
     {
-        public Matrix<T> Inverse(Matrix<T> a);
-        public Matrix<T> Add(Matrix<T> a, Matrix<T> b);
-        public Matrix<T> Substract(Matrix<T> a, Matrix<T> b);
-        public Matrix<T> Multipy(Matrix<T> a, Matrix<T> b);
-        public Matrix<T> Multipy(Matrix<T> a, T b);
-        public Matrix<T> Transpose(Matrix<T> a);
+        public MatrixBase<T> Inverse(MatrixBase<T> a);
+        public MatrixBase<T> Add(MatrixBase<T> a, MatrixBase<T> b);
+        public MatrixBase<T> Substract(MatrixBase<T> a, MatrixBase<T> b);
+        public MatrixBase<T> Multipy(MatrixBase<T> a, MatrixBase<T> b);
+        public MatrixBase<T> Multipy(MatrixBase<T> a, T b);
+        public MatrixBase<T> Transpose(MatrixBase<T> a);
 
-        public void InverseThis(Matrix<T> ret, Matrix<T> a);
-        public void AddThis(Matrix<T> ret, Matrix<T> a, Matrix<T> b);
-        public void SubstractThis(Matrix<T> ret, Matrix<T> a, Matrix<T> b);
-        public void MultipyThis(Matrix<T> ret, Matrix<T> a, Matrix<T> b);
-        public void MultipyThis(Matrix<T> ret, Matrix<T> a, T b);
+        public void InverseThis(MatrixBase<T> ret, MatrixBase<T> a);
+        public void AddThis(MatrixBase<T> ret, MatrixBase<T> a, MatrixBase<T> b);
+        public void SubstractThis(MatrixBase<T> ret, MatrixBase<T> a, MatrixBase<T> b);
+        public void MultipyThis(MatrixBase<T> ret, MatrixBase<T> a, MatrixBase<T> b);
+        public void MultipyThis(MatrixBase<T> ret, MatrixBase<T> a, T b);
     }
 }
