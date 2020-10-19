@@ -29,6 +29,12 @@ namespace Molytho.Matrix
         public virtual void Multipy(MatrixBase<T> other) => CalculationProvider<T>.Provider.MultipyThis(this, this, other);
         public virtual void Multipy(T scalar) => CalculationProvider<T>.Provider.MultipyThis(this, this, scalar);
 
+        public static MatrixBase<T> operator +(MatrixBase<T> a, MatrixBase<T> b) => CalculationProvider<T>.Provider.Add(a, b);
+        public static MatrixBase<T> operator -(MatrixBase<T> a, MatrixBase<T> b) => CalculationProvider<T>.Provider.Substract(a, b);
+        public static MatrixBase<T> operator *(MatrixBase<T> a, MatrixBase<T> b) => CalculationProvider<T>.Provider.Multipy(a, b);
+        public static MatrixBase<T> operator *(MatrixBase<T> a, T b) => CalculationProvider<T>.Provider.Multipy(a, b);
+        public static MatrixBase<T> operator *(T a, MatrixBase<T> b) => CalculationProvider<T>.Provider.Multipy(b, a);
+
         public override string ToString()
         {
             StringBuilder builder = new StringBuilder();
