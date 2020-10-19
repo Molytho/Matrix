@@ -32,6 +32,8 @@ namespace Molytho.Matrix
                 return ref _data[y];
             }
         }
+        public ref T this[int index]
+            => ref _data[index];
 
         private string GetDebuggerDisplay()
         {
