@@ -20,6 +20,8 @@ namespace Molytho.Matrix
             _data = new T[dimension.Height];
         }
 
+        public int Size => base.Height;
+
         public override ref T this[int x, int y]
         {
             get
