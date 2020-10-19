@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using Molytho.Matrix.Calculation;
 
 namespace Molytho.Matrix
 {
@@ -34,6 +35,12 @@ namespace Molytho.Matrix
         }
         public ref T this[int index]
             => ref _data[index];
+
+        public static Vector<T> operator +(Vector<T> a, Vector<T> b) => (Vector<T>)CalculationProvider<T>.Provider.Add(a, b);
+        public static Vector<T> operator -(Vector<T> a, Vector<T> b) => (Vector<T>)CalculationProvider<T>.Provider.Substract(a, b);
+        public static Vector<T> operator *(MatrixBase<T> a, Vector<T> b) => (Vector<T>)CalculationProvider<T>.Provider.Multipy(a, b);
+        public static Vector<T> operator *(Vector<T> a, T b) => (Vector<T>)CalculationProvider<T>.Provider.Multipy(a, b);
+        public static Vector<T> operator *(T a, Vector<T> b) => (Vector<T>)CalculationProvider<T>.Provider.Multipy(b, a);
 
         private string GetDebuggerDisplay()
         {
