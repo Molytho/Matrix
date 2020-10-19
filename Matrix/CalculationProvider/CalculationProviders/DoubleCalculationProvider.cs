@@ -11,8 +11,8 @@ namespace Molytho.Matrix.Calculation.Providers
 
             MatrixBase<double> ret =
                 a.Width == 1
-                ? new Matrix<double>(a.Dimension)/* FIXME Vector*/
-                : new Matrix<double>(a.Dimension);
+                ? new Vector<double>(a.Dimension) as MatrixBase<double>
+                : new Matrix<double>(a.Dimension) as MatrixBase<double>;
 
             AddThis(ret, a, b);
 
@@ -34,8 +34,8 @@ namespace Molytho.Matrix.Calculation.Providers
 
             MatrixBase<double> ret =
                 b.Width == 1
-                ? new Matrix<double>(a.Height, b.Width)/* FIXME Vector*/
-                : new Matrix<double>(a.Height, b.Width);
+                ? new Vector<double>(a.Height) as MatrixBase<double>
+                : new Matrix<double>(a.Height, b.Width) as MatrixBase<double>;
 
             MultipyThis(ret, a, b);
 
@@ -45,8 +45,8 @@ namespace Molytho.Matrix.Calculation.Providers
         {
             MatrixBase<double> ret =
                 a.Width == 1
-                ? new Matrix<double>(a.Dimension)/* FIXME Vector*/
-                : new Matrix<double>(a.Dimension);
+                ? new Vector<double>(a.Dimension) as MatrixBase<double>
+                : new Matrix<double>(a.Dimension) as MatrixBase<double>;
 
             MultipyThis(ret, a, b);
 
@@ -59,8 +59,8 @@ namespace Molytho.Matrix.Calculation.Providers
 
             MatrixBase<double> ret =
                 a.Width == 1
-                ? new Matrix<double>(a.Dimension)/* FIXME Vector*/
-                : new Matrix<double>(a.Dimension);
+                ? new Vector<double>(a.Dimension) as MatrixBase<double>
+                : new Matrix<double>(a.Dimension) as MatrixBase<double>;
 
             SubstractThis(ret, a, b);
 
@@ -70,8 +70,8 @@ namespace Molytho.Matrix.Calculation.Providers
         {
             MatrixBase<double> ret =
                 a.Height == 1
-                ? new Matrix<double>(a.Width, a.Height)/* FIXME Vector*/
-                : new Matrix<double>(a.Width, a.Height);
+                ? new Vector<double>(a.Width) as MatrixBase<double>
+                : new Matrix<double>(a.Width, a.Height) as MatrixBase<double>;
             for (int y = 0; y < a.Height; y++)
                 for (int x = 0; x < a.Width; x++)
                 {
