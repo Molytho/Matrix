@@ -4,7 +4,7 @@ using Xunit;
 
 namespace Molytho.UnitTests.Matrix
 {
-    public class IntCalculationProvider : CalculationProviderHelper<int>
+    public class IntCalculationProvider
     {
         [Fact]
         public void TestAdd()
