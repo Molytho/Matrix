@@ -1,4 +1,5 @@
 ﻿using Molytho.Matrix.Calculation;
+using System;
 using System.Diagnostics;
 using System.Text;
 
@@ -11,15 +12,25 @@ namespace Molytho.Matrix
 
         public Matrix(int height, int width) : base(height, width)
         {
-            _data = new T[height, width];
+            _data = new T[width, height];
         }
         public Matrix(Dimension dimension) : base(dimension)
         {
-            _data = new T[dimension.Height, dimension.Width];
+            _data = new T[dimension.Width, dimension.Height];
+        }
+        public Matrix(T[,] initialValues) : base(initialValues.GetLength(1), initialValues.GetLength(0))
+        {
+            if(initialValues == null)
+                throw new ArgumentNullException(nameof(initialValues));
+
+            _data = initialValues;
         }
 
         public override ref T this[int x, int y]
-            => ref _data[y, x];
+            => ref _data[x, y];
+
+        public static implicit operator Matrix<T>(T[,] values) => new Matrix<T>(values);
+        public static explicit operator T[,](Matrix<T> matrix) => matrix._data;
 
         private string GetDebuggerDisplay()
         {

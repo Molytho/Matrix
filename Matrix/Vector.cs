@@ -20,6 +20,13 @@ namespace Molytho.Matrix
 
             _data = new T[dimension.Height];
         }
+        public Vector(T[] initialValues) : base(initialValues.Length, 1)
+        {
+            if(initialValues == null)
+                throw new ArgumentNullException(nameof(initialValues));
+
+            _data = initialValues;
+        }
 
         public int Size => base.Height;
 
@@ -41,6 +48,9 @@ namespace Molytho.Matrix
         public static Vector<T> operator *(MatrixBase<T> a, Vector<T> b) => (Vector<T>)CalculationProvider<T>.Provider.Multipy(a, b);
         public static Vector<T> operator *(Vector<T> a, T b) => (Vector<T>)CalculationProvider<T>.Provider.Multipy(a, b);
         public static Vector<T> operator *(T a, Vector<T> b) => (Vector<T>)CalculationProvider<T>.Provider.Multipy(b, a);
+
+        public static implicit operator Vector<T>(T[] values) => new Vector<T>(values);
+        public static explicit operator T[](Vector<T> vector) => vector._data;
 
         private string GetDebuggerDisplay()
         {
