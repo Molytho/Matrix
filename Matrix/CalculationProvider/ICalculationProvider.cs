@@ -1,6 +1,7 @@
 ﻿namespace Molytho.Matrix.Calculation
 {
     public interface ICalculationProvider<T>
+        where T : notnull
     {
         public MatrixBase<T> Inverse(MatrixBase<T> a);
         public MatrixBase<T> Add(MatrixBase<T> a, MatrixBase<T> b);

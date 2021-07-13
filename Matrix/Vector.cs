@@ -6,6 +6,7 @@ namespace Molytho.Matrix
 {
     [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
     public class Vector<T> : MatrixBase<T>
+        where T : notnull
     {
         private readonly T[] _data;
 
@@ -22,7 +23,7 @@ namespace Molytho.Matrix
         }
         public Vector(T[] initialValues) : base(initialValues.Length, 1)
         {
-            if(initialValues == null)
+            if (initialValues == null)
                 throw new ArgumentNullException(nameof(initialValues));
 
             _data = initialValues;

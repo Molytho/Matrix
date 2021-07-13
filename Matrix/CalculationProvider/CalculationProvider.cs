@@ -5,6 +5,7 @@ using Molytho.Matrix.Calculation.Providers;
 namespace Molytho.Matrix.Calculation
 {
     public static class CalculationProvider<T>
+        where T : notnull
     {
         private static ICalculationProvider<T>? _provider;
         internal static ICalculationProvider<T> Provider => _provider ??= CalculationProvider.TryGetCalculationProvider<T>();
@@ -20,6 +21,7 @@ namespace Molytho.Matrix.Calculation
                 { typeof(float), typeof(FloatCalculationProvider) }
             };
         internal static ICalculationProvider<T> TryGetCalculationProvider<T>()
+            where T : notnull
         {
             Type providerType;
 

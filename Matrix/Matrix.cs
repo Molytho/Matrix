@@ -1,12 +1,11 @@
-﻿using Molytho.Matrix.Calculation;
-using System;
+﻿using System;
 using System.Diagnostics;
-using System.Text;
 
 namespace Molytho.Matrix
 {
     [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
     public class Matrix<T> : MatrixBase<T>
+        where T : notnull
     {
         private readonly T[,] _data;
 
@@ -20,7 +19,7 @@ namespace Molytho.Matrix
         }
         public Matrix(T[,] initialValues) : base(initialValues.GetLength(1), initialValues.GetLength(0))
         {
-            if(initialValues == null)
+            if (initialValues == null)
                 throw new ArgumentNullException(nameof(initialValues));
 
             _data = initialValues;

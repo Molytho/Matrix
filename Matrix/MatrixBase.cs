@@ -4,7 +4,8 @@ using Molytho.Matrix.Calculation;
 
 namespace Molytho.Matrix
 {
-    public abstract class MatrixBase<T>
+    public abstract class MatrixBase<T> : IEquatable<MatrixBase<T>>
+        where T : notnull
     {
         public MatrixBase(int height, int width)
         {
@@ -62,6 +63,22 @@ namespace Molytho.Matrix
             }
             sb.Append('}');
             return sb.ToString();
+        }
+
+        public virtual bool Equals(MatrixBase<T>? other)
+        {
+            if (other is null)
+                return false;
+
+            if (!Dimension.Equals(other.Dimension))
+                return false;
+
+            for (int y = 0; y < Dimension.Height; y++)
+                for (int x = 0; x < Dimension.Width; x++)
+                    if (!this[x, y].Equals(other[x, y]))
+                        return false;
+
+            return true;
         }
     }
 }
