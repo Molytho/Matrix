@@ -11,13 +11,13 @@ namespace Molytho.Matrix
 
         public Matrix(int height, int width) : base(height, width)
         {
-            _data = new T[width, height];
+            _data = new T[height, width];
         }
         public Matrix(Dimension dimension) : base(dimension)
         {
-            _data = new T[dimension.Width, dimension.Height];
+            _data = new T[dimension.Height, dimension.Width];
         }
-        public Matrix(T[,] initialValues) : base(initialValues.GetLength(1), initialValues.GetLength(0))
+        public Matrix(T[,] initialValues) : base(initialValues.GetLength(0), initialValues.GetLength(1))
         {
             if (initialValues == null)
                 throw new ArgumentNullException(nameof(initialValues));
@@ -26,7 +26,7 @@ namespace Molytho.Matrix
         }
 
         public override ref T this[int x, int y]
-            => ref _data[x, y];
+            => ref _data[y, x];
 
         public static implicit operator Matrix<T>(T[,] values) => new Matrix<T>(values);
         public static explicit operator T[,](Matrix<T> matrix) => matrix._data;
