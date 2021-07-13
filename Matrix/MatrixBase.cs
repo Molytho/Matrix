@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using Molytho.Matrix.Calculation;
 
 namespace Molytho.Matrix
@@ -7,10 +8,16 @@ namespace Molytho.Matrix
     {
         public MatrixBase(int height, int width)
         {
+            if (height <= 0 || width <= 0)
+                throw new ArgumentOutOfRangeException();
+
             Dimension = new Dimension(height, width);
         }
         public MatrixBase(Dimension dimension)
         {
+            if (!dimension.IsValid)
+                throw new ArgumentOutOfRangeException();
+
             Dimension = dimension;
         }
 
@@ -34,8 +41,8 @@ namespace Molytho.Matrix
         public static MatrixBase<T> operator *(MatrixBase<T> a, T b) => CalculationProvider<T>.Provider.Multipy(a, b);
         public static MatrixBase<T> operator *(T a, MatrixBase<T> b) => CalculationProvider<T>.Provider.Multipy(b, a);
 
-        private StringBuilder? _sb = null;
-        private StringBuilder sb => _sb ??= new StringBuilder();
+        private static StringBuilder? _sb = null;
+        private static StringBuilder sb => _sb ??= new StringBuilder();
         public override string ToString()
         {
             sb.Clear();
