@@ -92,6 +92,20 @@ namespace Molytho.UnitTests.Matrix
             Assert.True(m1.Height == m2.Height);
             Assert.True(m1.Width == m2.Width);
             Assert.True(m1.Dimension == m2.Dimension);
+
+            int[,] initValues = new int[xSize, ySize];
+            for (int x = 0; x < xSize; x++)
+                for (int y = 0; y < ySize; y++)
+                    initValues[x, y] = random.Next();
+            Matrix<int> m3 = new Matrix<int>(initValues);
+            Assert.True(m3.Height == ySize);
+            Assert.True(m3.Width == xSize);
+            for (int x = 0; x < xSize; x++)
+                for (int y = 0; y < ySize; y++)
+                    Assert.True(m3[x, y] == initValues[x, y]);
+            Assert.Same((int[,])m3, initValues);
+            Matrix<int> m4 = initValues;
+            Assert.Same((int[,])m4, initValues);
         }
 
         [Fact]
