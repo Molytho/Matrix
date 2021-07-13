@@ -8,8 +8,6 @@ namespace Molytho.UnitTests.Matrix
 {
     public abstract class CalculationProviderHelper<T>
     {
-        protected sealed record MatrixInput3(Matrix<T> M1, Matrix<T> M2, Matrix<T> M3);
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected void HelperAdd(MatrixBase<T> a, MatrixBase<T> b, MatrixBase<T> result)
         {
