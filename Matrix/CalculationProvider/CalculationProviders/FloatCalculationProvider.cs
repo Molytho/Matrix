@@ -7,7 +7,7 @@ namespace Molytho.Matrix.Calculation.Providers
         public MatrixBase<float> Add(MatrixBase<float> a, MatrixBase<float> b)
         {
             if (!a.Dimension.Equals(b.Dimension))
-                throw new DimensionMismatchException();
+                ThrowHelper.ThrowDimensionMismatch();
 
             MatrixBase<float> ret =
                 a.Width == 1
@@ -26,7 +26,7 @@ namespace Molytho.Matrix.Calculation.Providers
         public MatrixBase<float> Multipy(MatrixBase<float> a, MatrixBase<float> b)
         {
             if (a.Width != b.Height)
-                throw new DimensionMismatchException();
+                ThrowHelper.ThrowDimensionMismatch();
 
             MatrixBase<float> ret =
                 b.Width == 1
@@ -51,7 +51,7 @@ namespace Molytho.Matrix.Calculation.Providers
         public MatrixBase<float> Substract(MatrixBase<float> a, MatrixBase<float> b)
         {
             if (!a.Dimension.Equals(b.Dimension))
-                throw new DimensionMismatchException();
+                ThrowHelper.ThrowDimensionMismatch();
 
             MatrixBase<float> ret =
                 a.Width == 1
@@ -83,7 +83,7 @@ namespace Molytho.Matrix.Calculation.Providers
         public void MultipyThis(MatrixBase<float> ret, MatrixBase<float> a, MatrixBase<float> b)
         {
             if (a.Width != b.Height || !(ret.Height == a.Height && ret.Width == b.Width))
-                throw new DimensionMismatchException();
+                ThrowHelper.ThrowDimensionMismatch();
 
             for (int x = 0; x < b.Width; x++)
                 for (int y = 0; y < a.Height; y++)
@@ -107,7 +107,7 @@ namespace Molytho.Matrix.Calculation.Providers
         public void AddThis(MatrixBase<float> ret, MatrixBase<float> a, MatrixBase<float> b)
         {
             if (!a.Dimension.Equals(b.Dimension) || !a.Dimension.Equals(ret.Dimension))
-                throw new DimensionMismatchException();
+                ThrowHelper.ThrowDimensionMismatch();
 
             for (int x = 0; x < a.Width; x++)
                 for (int y = 0; y < a.Height; y++)
@@ -118,7 +118,7 @@ namespace Molytho.Matrix.Calculation.Providers
         public void SubstractThis(MatrixBase<float> ret, MatrixBase<float> a, MatrixBase<float> b)
         {
             if (!a.Dimension.Equals(b.Dimension) || !a.Dimension.Equals(ret.Dimension))
-                throw new DimensionMismatchException();
+                ThrowHelper.ThrowDimensionMismatch();
 
             for (int x = 0; x < a.Width; x++)
                 for (int y = 0; y < a.Height; y++)

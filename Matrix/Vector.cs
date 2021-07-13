@@ -16,7 +16,7 @@ namespace Molytho.Matrix
         public Vector(Dimension dimension) : base(dimension)
         {
             if (dimension.Width != 1)
-                throw new DimensionMismatchException();
+                ThrowHelper.ThrowDimensionMismatch(DimensionType.Column);
 
             _data = new T[dimension.Height];
         }

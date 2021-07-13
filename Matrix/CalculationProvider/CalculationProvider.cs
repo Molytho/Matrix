@@ -27,9 +27,9 @@ namespace Molytho.Matrix.Calculation
             {
                 providerType = _providers[typeof(T)];
             }
-            catch (KeyNotFoundException e)
+            catch (KeyNotFoundException)
             {
-                throw new NotSupportedException("No calculation provider found for this type", e);
+                throw new NotSupportedException("No calculation provider found for this type");
             }
 
             return (ICalculationProvider<T>)
