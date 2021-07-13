@@ -21,11 +21,7 @@ namespace Molytho.Matrix.Calculation.Providers
 
         public MatrixBase<double> Inverse(MatrixBase<double> a)
         {
-            MatrixBase<double> ret = null;
-
-            InverseThis(ret, a);
-
-            return ret;
+            throw new NotImplementedException();
         }
         public MatrixBase<double> Multipy(MatrixBase<double> a, MatrixBase<double> b)
         {

@@ -7,17 +7,16 @@ namespace Molytho.Matrix
     {
         public MatrixBase(int height, int width)
         {
-            _dimension = new Dimension(height, width);
+            Dimension = new Dimension(height, width);
         }
         public MatrixBase(Dimension dimension)
         {
-            _dimension = dimension;
+            Dimension = dimension;
         }
 
         public abstract ref T this[int x, int y] { get; }
 
-        private readonly Dimension _dimension;
-        public Dimension Dimension => _dimension;
+        public Dimension Dimension { get; }
         public int Height => Dimension.Height;
         public int Width => Dimension.Width;
 
@@ -35,25 +34,27 @@ namespace Molytho.Matrix
         public static MatrixBase<T> operator *(MatrixBase<T> a, T b) => CalculationProvider<T>.Provider.Multipy(a, b);
         public static MatrixBase<T> operator *(T a, MatrixBase<T> b) => CalculationProvider<T>.Provider.Multipy(b, a);
 
+        private StringBuilder? _sb = null;
+        private StringBuilder sb => _sb ??= new StringBuilder();
         public override string ToString()
         {
-            StringBuilder builder = new StringBuilder();
-            builder.Append('{');
+            sb.Clear();
+            sb.Append('{');
             for (int y = 0; y < Height; y++)
             {
-                builder.Append('{');
+                sb.Append('{');
                 for (int x = 0; x < Width; x++)
                 {
-                    builder.Append(this[x, y]);
+                    sb.Append(this[x, y]);
                     if (x < Width - 1)
-                        builder.Append(", ");
+                        sb.Append(", ");
                 }
-                builder.Append('}');
+                sb.Append('}');
                 if (y < Height - 1)
-                    builder.Append(", ");
+                    sb.Append(", ");
             }
-            builder.Append('}');
-            return builder.ToString();
+            sb.Append('}');
+            return sb.ToString();
         }
     }
 }
