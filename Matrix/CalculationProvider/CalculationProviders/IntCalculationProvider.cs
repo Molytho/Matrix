@@ -279,7 +279,7 @@ namespace Molytho.Matrix.Calculation.Providers
                 }
                 for (; calculated < ret.Width * ret.Height; calculated++)
                 {
-                    *(base_ret + calculated) = *(base_a + calculated) + *(base_b + calculated);
+                    *(base_ret + calculated) = *(base_a + calculated) - *(base_b + calculated);
                 }
             }
         }

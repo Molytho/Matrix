@@ -110,9 +110,12 @@ namespace Molytho.Matrix.Calculation.Providers
                 if (a.Height % Vector256<double>.Count > 1)
                 {
                     double* masks = stackalloc double[Vector256<double>.Count];
+                    byte* masksMSB = ((byte*)&masks[1]) - 1; //Point to MSB byte of first double
                     for (int i = 0; i < Vector256<double>.Count; i++)
                         //Most significant bit is used as mask
-                        masks[i] = a.Height - calculated - i > 0 ? (double)(0x80000000) : 0;
+                        if(a.Height - calculated - i > 0)
+                            //masksMSB is byte* instead of double* so we need to advance the value by sizeof(double) per i
+                            masksMSB[sizeof(double) * i] = 0b10000000;
 
                     Vector256<double> maskVec = Avx.LoadVector256(masks);
                     for (int x = 0; x < a.Width; x++)
@@ -273,7 +276,7 @@ namespace Molytho.Matrix.Calculation.Providers
                 }
                 for (; calculated < ret.Width * ret.Height; calculated++)
                 {
-                    *(base_ret + calculated) = *(base_a + calculated) + *(base_b + calculated);
+                    *(base_ret + calculated) = *(base_a + calculated) - *(base_b + calculated);
                 }
             }
         }
