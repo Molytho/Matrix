@@ -23,7 +23,7 @@ namespace Molytho.Matrix.Calculation.Providers
         {
             throw new NotImplementedException();
         }
-        public MatrixBase<int> Multipy(MatrixBase<int> a, MatrixBase<int> b)
+        public MatrixBase<int> Multiply(MatrixBase<int> a, MatrixBase<int> b)
         {
             if (a.Width != b.Height)
                 ThrowHelper.ThrowDimensionMismatch();
@@ -33,18 +33,18 @@ namespace Molytho.Matrix.Calculation.Providers
                 ? new Vector<int>(a.Height) as MatrixBase<int>
                 : new Matrix<int>(a.Height, b.Width);
 
-            MultipyThis(ret, a, b);
+            MultiplyThis(ret, a, b);
 
             return ret;
         }
-        public MatrixBase<int> Multipy(MatrixBase<int> a, int b)
+        public MatrixBase<int> Multiply(MatrixBase<int> a, int b)
         {
             MatrixBase<int> ret =
                 a.Width == 1
                 ? new Vector<int>(a.Dimension) as MatrixBase<int>
                 : new Matrix<int>(a.Dimension) as MatrixBase<int>;
 
-            MultipyThis(ret, a, b);
+            MultiplyThis(ret, a, b);
 
             return ret;
         }
@@ -80,7 +80,7 @@ namespace Molytho.Matrix.Calculation.Providers
         {
             throw new NotImplementedException();
         }
-        public void MultipyThis(MatrixBase<int> ret, MatrixBase<int> a, MatrixBase<int> b)
+        public void MultiplyThis(MatrixBase<int> ret, MatrixBase<int> a, MatrixBase<int> b)
         {
             if (a.Width != b.Height || !(ret.Height == a.Height && ret.Width == b.Width))
                 ThrowHelper.ThrowDimensionMismatch();
@@ -96,7 +96,7 @@ namespace Molytho.Matrix.Calculation.Providers
                     ret[x, y] = value;
                 }
         }
-        public void MultipyThis(MatrixBase<int> ret, MatrixBase<int> a, int b)
+        public void MultiplyThis(MatrixBase<int> ret, MatrixBase<int> a, int b)
         {
             for (int x = 0; x < a.Width; x++)
                 for (int y = 0; y < a.Height; y++)

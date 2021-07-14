@@ -23,7 +23,7 @@ namespace Molytho.Matrix.Calculation.Providers
         {
             throw new NotImplementedException();
         }
-        public MatrixBase<double> Multipy(MatrixBase<double> a, MatrixBase<double> b)
+        public MatrixBase<double> Multiply(MatrixBase<double> a, MatrixBase<double> b)
         {
             if (a.Width != b.Height)
                 ThrowHelper.ThrowDimensionMismatch();
@@ -33,18 +33,18 @@ namespace Molytho.Matrix.Calculation.Providers
                 ? new Vector<double>(a.Height) as MatrixBase<double>
                 : new Matrix<double>(a.Height, b.Width) as MatrixBase<double>;
 
-            MultipyThis(ret, a, b);
+            MultiplyThis(ret, a, b);
 
             return ret;
         }
-        public MatrixBase<double> Multipy(MatrixBase<double> a, double b)
+        public MatrixBase<double> Multiply(MatrixBase<double> a, double b)
         {
             MatrixBase<double> ret =
                 a.Width == 1
                 ? new Vector<double>(a.Dimension) as MatrixBase<double>
                 : new Matrix<double>(a.Dimension) as MatrixBase<double>;
 
-            MultipyThis(ret, a, b);
+            MultiplyThis(ret, a, b);
 
             return ret;
         }
@@ -80,7 +80,7 @@ namespace Molytho.Matrix.Calculation.Providers
         {
             throw new NotImplementedException();
         }
-        public void MultipyThis(MatrixBase<double> ret, MatrixBase<double> a, MatrixBase<double> b)
+        public void MultiplyThis(MatrixBase<double> ret, MatrixBase<double> a, MatrixBase<double> b)
         {
             if (a.Width != b.Height || !(ret.Height == a.Height && ret.Width == b.Width))
                 ThrowHelper.ThrowDimensionMismatch();
@@ -96,7 +96,7 @@ namespace Molytho.Matrix.Calculation.Providers
                     ret[x, y] = value;
                 }
         }
-        public void MultipyThis(MatrixBase<double> ret, MatrixBase<double> a, double b)
+        public void MultiplyThis(MatrixBase<double> ret, MatrixBase<double> a, double b)
         {
             for (int x = 0; x < a.Width; x++)
                 for (int y = 0; y < a.Height; y++)

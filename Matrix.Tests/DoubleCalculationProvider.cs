@@ -89,7 +89,7 @@ namespace Molytho.UnitTests.Matrix
         }
 
         [Fact]
-        public void TestMultipy()
+        public void TestMultiply()
         {
             (Matrix<double>, Matrix<double>, Matrix<double>)[] inputs1 =
             {

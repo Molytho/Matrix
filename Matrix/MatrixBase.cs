@@ -33,14 +33,14 @@ namespace Molytho.Matrix
         public virtual void Inverse() => CalculationProvider<T>.Provider.InverseThis(this, this);
         public virtual void Add(MatrixBase<T> other) => CalculationProvider<T>.Provider.AddThis(this, this, other);
         public virtual void Substract(MatrixBase<T> other) => CalculationProvider<T>.Provider.SubstractThis(this, this, other);
-        public virtual void Multipy(MatrixBase<T> other) => CalculationProvider<T>.Provider.MultipyThis(this, this, other);
-        public virtual void Multipy(T scalar) => CalculationProvider<T>.Provider.MultipyThis(this, this, scalar);
+        public virtual void Multiply(MatrixBase<T> other) => CalculationProvider<T>.Provider.MultiplyThis(this, this, other);
+        public virtual void Multiply(T scalar) => CalculationProvider<T>.Provider.MultiplyThis(this, this, scalar);
 
         public static MatrixBase<T> operator +(MatrixBase<T> a, MatrixBase<T> b) => CalculationProvider<T>.Provider.Add(a, b);
         public static MatrixBase<T> operator -(MatrixBase<T> a, MatrixBase<T> b) => CalculationProvider<T>.Provider.Substract(a, b);
-        public static MatrixBase<T> operator *(MatrixBase<T> a, MatrixBase<T> b) => CalculationProvider<T>.Provider.Multipy(a, b);
-        public static MatrixBase<T> operator *(MatrixBase<T> a, T b) => CalculationProvider<T>.Provider.Multipy(a, b);
-        public static MatrixBase<T> operator *(T a, MatrixBase<T> b) => CalculationProvider<T>.Provider.Multipy(b, a);
+        public static MatrixBase<T> operator *(MatrixBase<T> a, MatrixBase<T> b) => CalculationProvider<T>.Provider.Multiply(a, b);
+        public static MatrixBase<T> operator *(MatrixBase<T> a, T b) => CalculationProvider<T>.Provider.Multiply(a, b);
+        public static MatrixBase<T> operator *(T a, MatrixBase<T> b) => CalculationProvider<T>.Provider.Multiply(b, a);
 
         private static StringBuilder? _sb = null;
         private static StringBuilder sb => _sb ??= new StringBuilder();
