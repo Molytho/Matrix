@@ -47,6 +47,7 @@ namespace Molytho.Matrix
         public static Vector<T> operator +(Vector<T> a, Vector<T> b) => (Vector<T>)CalculationProvider<T>.Provider.Add(a, b);
         public static Vector<T> operator -(Vector<T> a, Vector<T> b) => (Vector<T>)CalculationProvider<T>.Provider.Substract(a, b);
         public static Vector<T> operator *(MatrixBase<T> a, Vector<T> b) => (Vector<T>)CalculationProvider<T>.Provider.Multiply(a, b);
+        public static Vector<T> operator *(Vector<T> a, Vector<T> b) => CalculationProvider<T>.Provider.Multiply(a, b);
         public static Vector<T> operator *(Vector<T> a, T b) => (Vector<T>)CalculationProvider<T>.Provider.Multiply(a, b);
         public static Vector<T> operator *(T a, Vector<T> b) => (Vector<T>)CalculationProvider<T>.Provider.Multiply(b, a);
 

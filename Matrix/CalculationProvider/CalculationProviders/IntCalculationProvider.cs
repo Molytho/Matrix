@@ -37,6 +37,17 @@ namespace Molytho.Matrix.Calculation.Providers
 
             return ret;
         }
+        public Vector<int> Multiply(Vector<int> a, Vector<int> b)
+        {
+            if (a.Dimension != b.Dimension)
+                ThrowHelper.ThrowDimensionMismatch(DimensionType.Row);
+
+            Vector<int> ret = new Vector<int>(a.Dimension);
+
+            MultiplyThis(ret, a, b);
+
+            return ret;
+        }
         public MatrixBase<int> Multiply(MatrixBase<int> a, int b)
         {
             MatrixBase<int> ret =
@@ -96,8 +107,22 @@ namespace Molytho.Matrix.Calculation.Providers
                     ret[x, y] = value;
                 }
         }
+        public void MultiplyThis(Vector<int> ret, Vector<int> a, Vector<int> b)
+        {
+            if (a.Dimension != b.Dimension || ret.Dimension != a.Dimension)
+                ThrowHelper.ThrowDimensionMismatch(DimensionType.Row);
+
+            for (int x = 0; x < a.Width; x++)
+                for (int y = 0; y < a.Height; y++)
+                {
+                    ret[x, y] = a[x, y] * b[x, y];
+                }
+        }
         public void MultiplyThis(MatrixBase<int> ret, MatrixBase<int> a, int b)
         {
+            if(ret.Dimension != a.Dimension)
+                ThrowHelper.ThrowDimensionMismatch();
+
             for (int x = 0; x < a.Width; x++)
                 for (int y = 0; y < a.Height; y++)
                 {
