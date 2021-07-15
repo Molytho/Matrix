@@ -25,8 +25,29 @@ namespace Molytho.Matrix
             _data = initialValues;
         }
 
+        //Shrinking width is not supported because then our memory wouldn't be linear anymore
+        public Matrix(T[,] initialValues, int height)
+            : base(
+                height <= initialValues.GetLength(0) ? height : throw new ArgumentOutOfRangeException(),
+                initialValues.GetLength(1)
+            )
+        {
+            if (initialValues == null)
+                throw new ArgumentNullException(nameof(initialValues));
+
+            _data = initialValues;
+        }
+
         public override ref T this[int x, int y]
-            => ref _data[y, x];
+        {
+            get
+            {
+                if(x < Width && y < Height)
+                    return ref _data[y, x];
+                else
+                    throw new IndexOutOfRangeException();
+            }
+        }
 
         public static implicit operator Matrix<T>(T[,] values) => new Matrix<T>(values);
         public static explicit operator T[,](Matrix<T> matrix) => matrix._data;
