@@ -354,14 +354,58 @@ namespace Molytho.Matrix.Calculation.Providers
             }
         }
         #endregion
+
+        #region MultiplyThis(MatrixBase<double> ret, MatrixBase<double> a, double b)
         public void MultiplyThis(MatrixBase<double> ret, MatrixBase<double> a, double b)
         {
-            for (int x = 0; x < a.Width; x++)
-                for (int y = 0; y < a.Height; y++)
-                {
-                    ret[x, y] = a[x, y] * b;
-                }
+            if (Sse2.IsSupported)
+                MultiplyThisSse2(ret, a, b);
+            else
+                for (int x = 0; x < a.Width; x++)
+                    for (int y = 0; y < a.Height; y++)
+                    {
+                        ret[x, y] = a[x, y] * b;
+                    }
         }
+        public unsafe void MultiplyThisSse2(MatrixBase<double> ret, MatrixBase<double> a, double b)
+        {
+            int calculated = 0;
+            double* buffer = stackalloc double[]
+            {
+                b,
+                b,
+            };
+
+            fixed (double* base_a = &a[0, 0], base_ret = &ret[0, 0])
+            {
+                if (Avx.IsSupported)
+                {
+                    Vector256<double> scalarVect256 = Avx.BroadcastScalarToVector256(&b);
+                    for (; calculated + Vector256<double>.Count <= a.Height * a.Width; calculated += Vector256<double>.Count)
+                    {
+                        Vector256<double> aValueVect = Avx.LoadVector256(&base_a[calculated]);
+
+                        Vector256<double> product = Avx.Multiply(aValueVect, scalarVect256);
+
+                        Avx.Store(&base_ret[calculated], product);
+                    }
+                }
+
+                Vector128<double> scalarVect128 = Sse2.LoadVector128(buffer);
+                for (; calculated + Vector128<double>.Count <= a.Height * a.Width; calculated += Vector128<double>.Count)
+                {
+                    Vector128<double> aValueVect = Sse2.LoadVector128(&base_a[calculated]);
+
+                    Vector128<double> product = Sse2.Multiply(aValueVect, scalarVect128);
+
+                    Sse2.Store(&base_ret[calculated], product);
+                }
+
+                for (; calculated < a.Width * a.Height; calculated++)
+                    base_ret[calculated] = base_a[calculated] * b;
+            }
+        }
+        #endregion
 
         private unsafe void AddThisSse2(MatrixBase<double> ret, MatrixBase<double> a, MatrixBase<double> b)
         {
