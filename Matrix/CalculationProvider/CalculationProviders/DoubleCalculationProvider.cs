@@ -113,7 +113,7 @@ namespace Molytho.Matrix.Calculation.Providers
                     byte* masksMSB = ((byte*)&masks[1]) - 1; //Point to MSB byte of first double
                     for (int i = 0; i < Vector256<double>.Count; i++)
                         //Most significant bit is used as mask
-                        if(a.Height - calculated - i > 0)
+                        if (a.Height - calculated - i > 0)
                             //masksMSB is byte* instead of double* so we need to advance the value by sizeof(double) per i
                             masksMSB[sizeof(double) * i] = 0b10000000;
 
@@ -180,11 +180,46 @@ namespace Molytho.Matrix.Calculation.Providers
             if (a.Dimension != b.Dimension || ret.Dimension != a.Dimension)
                 ThrowHelper.ThrowDimensionMismatch(DimensionType.Row);
 
-            for (int x = 0; x < a.Width; x++)
-                for (int y = 0; y < a.Height; y++)
+            if (Sse2.IsSupported)
+                MultiplyThisSse2(ret, a, b);
+            else
+                for (int x = 0; x < a.Width; x++)
+                    for (int y = 0; y < a.Height; y++)
+                    {
+                        ret[x, y] = a[x, y] * b[x, y];
+                    }
+        }
+        public unsafe void MultiplyThisSse2(Vector<double> ret, Vector<double> a, Vector<double> b)
+        {
+            int calculated = 0;
+            fixed (double* base_a = &a[0], base_b = &b[0], base_ret = &ret[0])
+            {
+                if (Avx.IsSupported)
                 {
-                    ret[x, y] = a[x, y] * b[x, y];
+                    while (calculated + Vector256<double>.Count <= a.Size)
+                    {
+                        Vector256<double> aVect = Avx.LoadVector256(&base_a[calculated]);
+                        Vector256<double> bVect = Avx.LoadVector256(&base_b[calculated]);
+                        Vector256<double> product = Avx.Multiply(aVect, bVect);
+                        Avx.Store(&base_ret[calculated], product);
+
+                        calculated += Vector256<double>.Count;
+                    }
                 }
+                while (calculated + Vector128<double>.Count <= a.Size)
+                {
+                    Vector128<double> aVect = Sse2.LoadVector128(&base_a[calculated]);
+                    Vector128<double> bVect = Sse2.LoadVector128(&base_b[calculated]);
+                    Vector128<double> product = Sse2.Multiply(aVect, bVect);
+                    Sse2.Store(&base_ret[calculated], product);
+
+                    calculated += Vector128<double>.Count;
+                }
+                for (; calculated < a.Size; calculated++)
+                {
+                    base_ret[calculated] = a[calculated] * b[calculated];
+                }
+            }
         }
         public void MultiplyThis(MatrixBase<double> ret, MatrixBase<double> a, double b)
         {
