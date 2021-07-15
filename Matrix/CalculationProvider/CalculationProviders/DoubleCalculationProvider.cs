@@ -74,65 +74,6 @@ namespace Molytho.Matrix.Calculation.Providers
 
             return ret;
         }
-
-        private unsafe void TransposeAvx2(MatrixBase<double> ret, MatrixBase<double> a)
-        {
-            fixed (double* base_a = &a[0, 0], base_ret = &ret[0, 0])
-            {
-                int calculated = 0;
-                int* indices = stackalloc int[]
-                {
-                    0,
-                    a.Width * 1 * sizeof(double),
-                    a.Width * 2 * sizeof(double),
-                    a.Width * 3 * sizeof(double),
-                };
-                Vector128<int> indexVec = Avx.LoadVector128(indices);
-                if (a.Height >= Vector256<double>.Count)
-                {
-                    int indexScale = a.Width * 4 * sizeof(double);
-                    Vector128<int> indexVecInc = Avx2.BroadcastScalarToVector128(&indexScale);
-                    while (calculated + Vector256<double>.Count < a.Height)
-                    {
-                        if (calculated > 0)
-                            indexVec = Avx2.Add(indexVec, indexVecInc);
-
-                        for (int x = 0; x < a.Width; x++)
-                        {
-                            Vector256<double> storeVec = Avx2.GatherVector256(base_a + x, indexVec, 1);
-                            Avx.Store(base_ret + x * ret.Width + calculated, storeVec);
-                        }
-                        calculated += Vector256<double>.Count;
-                    }
-                    if (a.Height % Vector256<double>.Count > 1)
-                        indexVec = Avx2.Add(indexVec, indexVecInc);
-                }
-                if (a.Height % Vector256<double>.Count > 1)
-                {
-                    double* masks = stackalloc double[Vector256<double>.Count];
-                    byte* masksMSB = ((byte*)&masks[1]) - 1; //Point to MSB byte of first double
-                    for (int i = 0; i < Vector256<double>.Count; i++)
-                        //Most significant bit is used as mask
-                        if (a.Height - calculated - i > 0)
-                            //masksMSB is byte* instead of double* so we need to advance the value by sizeof(double) per i
-                            masksMSB[sizeof(double) * i] = 0b10000000;
-
-                    Vector256<double> maskVec = Avx.LoadVector256(masks);
-                    for (int x = 0; x < a.Width; x++)
-                    {
-                        Vector256<double> storeVec = Avx2.GatherMaskVector256(Vector256<double>.Zero, base_a + x, indexVec, maskVec, 1);
-                        Avx2.MaskStore(base_ret + x * ret.Width + calculated, maskVec, storeVec);
-                    }
-                }
-                else if (a.Height % Vector256<double>.Count == 1)
-                {
-                    for (int x = 0; x < a.Width; x++)
-                    {
-                        *(base_ret + x * ret.Width + calculated) = *(base_a + x + calculated * a.Width);
-                    }
-                }
-            }
-        }
         public unsafe MatrixBase<double> Transpose(MatrixBase<double> a)
         {
             MatrixBase<double> ret =
@@ -153,6 +94,58 @@ namespace Molytho.Matrix.Calculation.Providers
                         ret[y, x] = a[x, y];
                     }
             return ret;
+        }
+
+        private unsafe void TransposeAvx2(MatrixBase<double> ret, MatrixBase<double> a)
+        {
+            double* masks = stackalloc double[Vector256<double>.Count];
+            int* indices = stackalloc int[]
+            {
+                0,
+                a.Width * 1 * sizeof(double),
+                a.Width * 2 * sizeof(double),
+                a.Width * 3 * sizeof(double),
+            };
+            Vector128<int> indexVec;
+
+            int indexScale = a.Width * 4 * sizeof(double);
+            Vector128<int> indexVecInc = Avx2.BroadcastScalarToVector128(&indexScale);
+
+            fixed (double* base_a = &a[0, 0], base_ret = &ret[0, 0])
+            {
+                for (int x = 0; x < a.Width; x++)
+                {
+                    fixed (double* base_ret_row = &ret[0, x])
+                    {
+                        int calculated = 0;
+                        indexVec = Avx.LoadVector128(indices);
+                        for (; calculated + Vector256<double>.Count <= a.Height; calculated += Vector256<double>.Count)
+                        {
+                            Vector256<double> storeVec = Avx2.GatherVector256(&base_a[x], indexVec, 1); //Load through column of source
+                            Avx.Store(&base_ret_row[calculated], storeVec); //And save it linear as row in destination
+
+                            //Increase out indices
+                            indexVec = Avx2.Add(indexVec, indexVecInc);
+                        }
+
+                        if (a.Height - calculated > 1) // if we only have one value don't use vectors
+                        {
+                            if (x == 0) // We need to calculate the mask only once
+                                // We have to set the MSB
+                                for (int i = 0; calculated + i < a.Height; i++)
+                                    ((byte*)&masks[i + 1])[-1] = 0b10000000;
+
+                            Vector256<double> maskVect = Avx2.LoadVector256(masks);
+                            Vector256<double> storeVect = Avx2.GatherMaskVector256(Vector256<double>.Zero, &base_a[x], indexVec, maskVect, 1);
+                            Avx2.MaskStore(&base_ret_row[calculated], maskVect, storeVect);
+                        }
+                        else if (a.Height - calculated == 1)
+                        {
+                            base_ret_row[calculated] = a[x, calculated];
+                        }
+                    }
+                }
+            }
         }
 
         public void InverseThis(MatrixBase<double> ret, MatrixBase<double> a)
