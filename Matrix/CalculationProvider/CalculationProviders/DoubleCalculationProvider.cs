@@ -407,49 +407,14 @@ namespace Molytho.Matrix.Calculation.Providers
         }
         #endregion
 
-        private unsafe void AddThisSse2(MatrixBase<double> ret, MatrixBase<double> a, MatrixBase<double> b)
-        {
-            int calculated = 0;
-            fixed (double* base_a = &a[0, 0], base_b = &b[0, 0], base_ret = &ret[0, 0])
-            {
-                if (Avx.IsSupported)
-                {
-                    while (calculated + Vector256<double>.Count <= ret.Width * ret.Height)
-                    {
-                        Vector256<double> solution =
-                            Avx.Add(
-                                Avx.LoadVector256(base_a + calculated),
-                                Avx.LoadVector256(base_b + calculated)
-                                );
-                        Avx.Store(base_ret + calculated, solution);
-                        calculated += Vector256<double>.Count;
-                    }
-                }
-                while (calculated + Vector128<double>.Count <= ret.Width * ret.Height)
-                {
-                    Vector128<double> solution =
-                        Sse2.Add(
-                            Sse2.LoadVector128(base_a + calculated),
-                            Sse2.LoadVector128(base_b + calculated)
-                            );
-                    Sse2.Store(base_ret + calculated, solution);
-                    calculated += Vector128<double>.Count;
-                }
-                for (; calculated < ret.Width * ret.Height; calculated++)
-                {
-                    *(base_ret + calculated) = *(base_a + calculated) + *(base_b + calculated);
-                }
-            }
-        }
+        #region AddThis(MatrixBase<double> ret, MatrixBase<double> a, MatrixBase<double> b)
         public void AddThis(MatrixBase<double> ret, MatrixBase<double> a, MatrixBase<double> b)
         {
             if (!a.Dimension.Equals(b.Dimension) || !a.Dimension.Equals(ret.Dimension))
                 ThrowHelper.ThrowDimensionMismatch();
 
             if (Sse2.IsSupported)
-            {
                 AddThisSse2(ret, a, b);
-            }
             else
                 for (int x = 0; x < a.Width; x++)
                     for (int y = 0; y < a.Height; y++)
@@ -457,6 +422,42 @@ namespace Molytho.Matrix.Calculation.Providers
                         ret[x, y] = a[x, y] + b[x, y];
                     }
         }
+        private unsafe void AddThisSse2(MatrixBase<double> ret, MatrixBase<double> a, MatrixBase<double> b)
+        {
+            int calculated = 0;
+
+            fixed (double* base_a = &a[0, 0], base_b = &b[0, 0], base_ret = &ret[0, 0])
+            {
+                if (Avx.IsSupported)
+                {
+                    for (; calculated + Vector256<double>.Count <= ret.Width * ret.Height; calculated += Vector256<double>.Count)
+                    {
+                        Vector256<double> aValueVect = Avx.LoadVector256(&base_a[calculated]);
+                        Vector256<double> bValueVect = Avx.LoadVector256(&base_b[calculated]);
+
+                        Vector256<double> sum = Avx.Add(aValueVect, bValueVect);
+
+                        Avx.Store(&base_ret[calculated], sum);
+                    }
+                }
+
+                for (; calculated + Vector128<double>.Count <= ret.Width * ret.Height; calculated += Vector128<double>.Count)
+                {
+                    Vector128<double> aValueVect = Sse2.LoadVector128(&base_a[calculated]);
+                    Vector128<double> bValueVect = Sse2.LoadVector128(&base_b[calculated]);
+
+                    Vector128<double> sum = Sse2.Add(aValueVect, bValueVect);
+
+                    Sse2.Store(&base_ret[calculated], sum);
+                }
+
+                for (; calculated < ret.Width * ret.Height; calculated++)
+                {
+                    base_ret[calculated] = base_a[calculated] + base_b[calculated];
+                }
+            }
+        }
+        #endregion
 
         private unsafe void SubstractThisSse2(MatrixBase<double> ret, MatrixBase<double> a, MatrixBase<double> b)
         {
