@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Molytho.Matrix.Calculation;
 
 namespace Molytho.Matrix
 {
+    [Serializable]
+    [JsonConverter(typeof(JsonMatrixBaseConverterFactory))]
     public abstract class MatrixBase<T> : IEquatable<MatrixBase<T>>
         where T : notnull
     {
